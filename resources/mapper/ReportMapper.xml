@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.ReportMapper" >
+
+    <select id="getConsumptionValue" resultType="Sampling_period_5min">
+        <foreach collection="hisList" index="index" item="item" separator="UNION ALL">
+            select ${item.time_value},tagname,convert(varchar,time,120) as time,'${item.table_name}' as tableName
+             from ${item.table_name} where tagname ='${item.ca_number}' and convert(varchar,time,120)
+             like '${date}%'
+        </foreach>
+    </select>
+
+    <select id="getConsumptionValueByTime" resultType="Sampling_period_5min">
+        <foreach collection="hourList" index="index" item="item" separator="UNION ALL">
+            select ${item.time_value},tagname,convert(varchar,time,120) as time,'${item.table_name}' as tableName
+            from ${item.table_name} where tagname ='${item.ca_number}' and convert(varchar,time,120) &gt;='${startTime}'
+            and convert(varchar,time,120) &lt;='${endTime}'
+        </foreach>
+    </select>
+
+    <select id="getSumConsumValue" resultType="Sampling_period_5min">
+        <foreach collection="parameterList" index="index" item="item" separator="UNION ALL">
+            select sum(time_value) as consumeValue,tagname,'${qStartDate}' as time,'${item.table_name}' as tableName
+            from ${item.table_name} where tagname ='${item.ca_number}' and convert(varchar,time,120) &gt;='${qStartDate}'
+            and convert(varchar,time,120) &lt;='${qEndDate}' group by tagname
+        </foreach>
+
+    </select>
+
+    <select id="getMaxValue" resultType="Sampling_period_5min">
+        <foreach collection="hisList" index="index" item="item" separator="UNION ALL">
+            select ${item.time_value},tagname,'${item.table_name}' as tableName from ${item.table_name} where
+            tagname ='${item.ca_number}' and convert(varchar,time,120) like '${date}%' group by tagname
+        </foreach>
+    </select>
+
+    <select id="getAvgValue" resultType="Sampling_period_5min">
+        <foreach collection="avgList" index="index" item="item" separator="UNION ALL">
+            select ${item.time_value},tagname,'${item.table_name}' as tableName from ${item.table_name} where
+            tagname ='${item.ca_number}' and convert(varchar,time,120) &gt;='${range.startDate}'
+            and convert(varchar,time,120) &lt;='${range.endDate}' group by tagname
+        </foreach>
+    </select>
+
+    <update id="updateReportTime">
+        update menu_table_report set start_time='${startTime}',end_time='${endTime}' where label='${label}' and fun_code='1'
+    </update>
+</mapper>

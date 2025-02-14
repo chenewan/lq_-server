@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.HomePageCompareMapper" >
+    <sql id="Acl_Column_List">
+        id,consumption,tb,hb,dateType,tagname
+    </sql>
+
+    <select id="selectByTagname" parameterType="java.lang.String" resultType="HomePageCompare">
+        select consumption,tb,hb,dateType,tagname from page_compare where tagname like '%${tagname}%'
+    </select>
+
+    <select id="getSectorData" resultType="HomePageCompare">
+        select consumption,tagname from page_compare where dateType='${dateType}'
+        and tagname in
+        <foreach collection="tagnameList" index="index" item="item" open="(" separator="," close=")">
+            '${item}'
+        </foreach>
+
+    </select>
+
+    <select id="getLoadCurveData" parameterType="java.lang.String" resultType="ElePower">
+        select xTime,yValue from ele_power where workShopType='${workShopType}' order by  number asc
+    </select>
+
+    <select id="nengHaoCure" parameterType="java.lang.String" resultType="ConsumptionData">
+        select xTime,yValue from ${tableName} where workShopType='${workShop}' and dateType='${type}'
+        order by  number asc
+    </select>
+
+    <select id="nengHaoBar" parameterType="java.lang.String" resultType="EleBar">
+        select xTime,yValue from ${tableName} where workShopType='${type}' and media='${media}' order by number asc
+    </select>
+
+</mapper>

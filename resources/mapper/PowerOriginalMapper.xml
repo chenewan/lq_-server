@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.PowerOriginalmapper" >
+    <sql id="all_Column_List" >
+      describe,type,superior,grade,img_path,display_quantity,ua,ub,uc,ia,ib,ic,p,q,pf,ep,eq
+    </sql>
+
+    <sql id="value_Column_List" >
+      ua,ub,uc,ia,ib,ic,p,q,pf,ep,eq
+    </sql>
+
+    <resultMap id="PowerResultMap" type="com.byd.emg.pojo.PowerOriginal" >
+        <id column="power_id" property="power_id" />
+        <result column="describe" property="describe"/>
+        <result column="type" property="type"/>
+        <result column="superior" property="superior"/>
+        <result column="grade" property="grade" />
+        <result column="img_path" property="img_path"/>
+        <result column="display_quantity" property="display_quantity"/>
+        <result column="ua" property="ua"/>
+        <result column="ub" property="ub"/>
+        <result column="uc" property="uc"/>
+        <result column="ia" property="ia"/>
+        <result column="ib" property="ib"/>
+        <result column="ic" property="ic"/>
+        <result column="p" property="p"/>
+        <result column="q" property="q"/>
+        <result column="pf" property="pf"/>
+        <result column="ep" property="ep"/>
+        <result column="eq" property="eq"/>
+    </resultMap>
+
+
+
+    <select id="getPower_Page_1"  resultMap="PowerResultMap">
+        SELECT
+         <include refid="all_Column_List" />
+        FROM power_tz_original_table po, power_tz_page_table pp
+        WHERE
+        po.describe=pp.page_power_name
+        ORDER BY pp.page_power_id;
+
+    </select>
+</mapper>

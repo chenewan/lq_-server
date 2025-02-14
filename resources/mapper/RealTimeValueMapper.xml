@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.RealTimeValueMapper" >
+    <sql id="RealValue_Column_List" >
+        real_tagname,
+        cast(convert(decimal(38,1),cast(replace(case real_time_value when '' then '0.0' when null then '0.0' else real_time_value end,',','') as float)) as varchar) as real_time_value,
+        time
+    </sql>
+
+    <resultMap id="realTimeResultMap" type="com.byd.emg.pojo.RealTimeValue" >
+        <id column="real_id" property="realId" />
+        <result column="real_tagname" property="realTagname"/>
+        <result column="real_time_value" property="realValue"/>
+        <result column="time" property="time"/>
+    </resultMap>
+
+    <!--查询页面上所显示的仪表盘的实时值-->
+    <select id="findRealTimeValueAll" resultMap="realTimeResultMap">
+        SELECT
+        <include refid="RealValue_Column_List" />
+        FROM tz_real_time_power realVal,tz_data_monitoring_dashboard dashboard,tz_original_table resource
+        WHERE realVal.real_tagname=dashboard.dash_tagname AND dashboard.dash_tagname=resource.tagname
+        ORDER BY dashboard.tz_id;
+    </select>
+
+    <select id="findRealTimeValueByTagname" parameterType="com.byd.emg.pojo.RealTimeValue" resultMap="realTimeResultMap">
+        SELECT
+        <include refid="RealValue_Column_List" />
+        FROM tz_real_time_power realVal WHERE realVal.real_tagname='${realTagname}';
+
+    </select>
+    <select id="findRealTimeValueByTagnameList" parameterType="java.util.List" resultMap="realTimeResultMap">
+        SELECT
+        <include refid="RealValue_Column_List" />
+        FROM ${table_1} realVal left  JOIN ${table_name} dashboard ON dashboard.dash_tagname = realVal.real_tagname
+        WHERE
+        realVal.real_tagname IN
+        <foreach collection="tagnameList" index="index" item="item"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        ORDER BY 	dashboard.tz_id;
+    </select>
+
+    <select id="findRealTimeValueByTagnameList_NaturalGas" parameterType="java.util.List" resultMap="realTimeResultMap">
+        SELECT
+        <include refid="RealValue_Column_List" />
+        FROM ${table_1} realVal left  JOIN ${table_name} dashboard ON dashboard.dash_tagname = realVal.real_tagname
+        WHERE
+        realVal.real_tagname IN
+        <foreach collection="tagnameList" index="index" item="item"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        ORDER BY 	dashboard.tz_NaturalGas_id;
+    </select>
+
+    <select id="findRealTimeValueByTagnameList_Water" parameterType="java.util.List" resultMap="realTimeResultMap">
+        SELECT
+        <include refid="RealValue_Column_List" />
+        FROM ${table_1} realVal left  JOIN ${table_name} dashboard ON dashboard.dash_tagname = realVal.real_tagname
+        WHERE
+        realVal.real_tagname IN
+        <foreach collection="tagnameList" index="index" item="item"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        ORDER BY 	dashboard.tz_water_id;
+    </select>
+
+    <select id="findRealTimeValueByTagnameList_CompressedAir" parameterType="java.util.List" resultMap="realTimeResultMap">
+        SELECT
+        <include refid="RealValue_Column_List" />
+        FROM ${table_1} realVal left  JOIN ${table_name} dashboard ON dashboard.dash_tagname = realVal.real_tagname
+        WHERE
+        realVal.real_tagname IN
+        <foreach collection="tagnameList" index="index" item="item"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        ORDER BY 	dashboard.tz_CompressedAir_id;
+    </select>
+
+    <!--根据tagname的集合，获取对应的实时数据的时间的集合(变电站)-->
+    <select id="getRealTimeList" parameterType="java.util.List" resultType="Sampling_period_5min">
+        select tagname,his_time from BDZ_real_power where
+        tagname in
+        <foreach collection="tagnameList" index="index" item="item"
+                 open="(" separator="," close=")">
+            '${item}'
+        </foreach>
+    </select>
+
+
+</mapper>

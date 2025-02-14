@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.AclMapper" >
+    <sql id="Acl_Column_List">
+        id,name,url,operator,operatetime
+    </sql>
+
+    <!--根据url查询对应的权限信息-->
+    <select id="selectAclByUrl" parameterType="string" resultType="Acl">
+        select <include refid="Acl_Column_List" />
+        from tz_acl
+        where url = #{requestUrl}
+    </select>
+
+    <!--根据角色id的集合查询该用户所拥有的所有的权限名称-->
+    <select id="selectByRoleIdList" parameterType="java.lang.String" resultType="Acl">
+        select acl.name as name,acl.englishname as englishname from tz_acl acl inner join tz_role_acl ra on acl.id=ra.aclid
+        <where>
+            <if test="roleIdList!=null and roleIdList.size>0">
+                and ra.roleid in
+                <foreach collection="roleIdList" index="index" item="item"
+                         open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+</mapper>

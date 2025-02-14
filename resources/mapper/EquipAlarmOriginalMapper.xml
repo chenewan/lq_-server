@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.EquipAlarmOriginalMapper">
+
+    <select id="selectAlarmState" parameterType="java.util.List" resultType="com.byd.emg.resultentity.EquipAlarmState">
+        select tagname,alarmState from alarm_original_table
+        where tagname in
+        <foreach collection="queryList" index="index" item="item" open="(" separator="," close=")">
+            '${item}'
+        </foreach>
+    </select>
+
+    <select id="selectEquipDesception" parameterType="java.lang.String" resultType="com.byd.emg.resultentity.EquipDeception">
+        select name,tagname,stack,description,remarks,winccTagname from alarm_original_table where tagname='${tagname}'
+    </select>
+
+    <select id="faultInformation" resultType="com.byd.emg.resultentity.FaultInformation">
+        select name,description,alarmDate from alarm_original_table where alarmState='1' order by alarmDate
+    </select>
+
+</mapper>

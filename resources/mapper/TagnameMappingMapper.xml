@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.TagnameMappingMapper">
+
+    <select id="selectAllData" resultType="TagnameMapping">
+        select * from tagname_mapping
+    </select>
+
+    <select id="getTagnameListByCondition" resultType="java.lang.String">
+        select bdz_tagname from tagname_mapping where tagname like '%EP%' or tagname like '%EQ%' or tagname like '%PF%'
+    </select>
+
+</mapper>

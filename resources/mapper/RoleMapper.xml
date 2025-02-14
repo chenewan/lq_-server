@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.RoleMapper" >
+    <sql id="Role_Column_List">
+        id,rolename,remark,operator,operatetime
+    </sql>
+
+    <!--通过用户的id查询该用户的角色-->
+    <select id="selectByUserId" parameterType="java.lang.Integer" resultType="Role">
+      select ro.id, ro.rolename,ro.remark, ro.operator, ro.operatetime
+      from tz_role ro inner join tz_role_user us on ro.id=us.roleid where us.userid='${userid}'
+    </select>
+
+
+    <!--根据角色id的集合查询角色信息-->
+    <select id="getByIdList" parameterType="java.util.List" resultType="Role">
+        select
+        <include refid="Role_Column_List" />
+        from tz_role
+        where id in
+        <foreach collection="roleIdList" item="id" open="(" close=")"  separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectAll" resultType="Role">
+        select
+        <include refid="Role_Column_List" />
+        from tz_role
+    </select>
+
+    <select id="selectIdsByUsername" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select ru.id from tz_role_user ru inner join tz_user u on ru.userid=u.id and u.username='${username}'
+    </select>
+
+    <select id="selectIdByRoleName" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select id from tz_role where rolename='${rolename}'
+    </select>
+
+    <select id="selectAllRoleName" resultType="java.lang.String">
+        select rolename from tz_role
+    </select>
+
+
+</mapper>

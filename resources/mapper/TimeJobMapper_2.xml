@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.TimeJobMapper_2" >
+
+    <sql id="5Min_Column_List" >
+        min_tagname,min_time_value,min_date,min_time
+    </sql>
+
+
+    <resultMap id="5MinResultMap" type="com.byd.emg.pojo.Sampling_period_5min" >
+        <id column="min_id" property="id" />
+        <result column="min_tagname" property="tagname"/>
+        <result column="min_time_value" property="time_value"/>
+        <result column="min_date" property="his_date"/>
+        <result column="min_time" property="his_time"/>
+    </resultMap>
+
+    <!--五分钟一次的数据划分-->
+    <insert id="TimeJobBy5min_power" parameterType="com.byd.emg.pojo.Sampling_period_5min" >
+       insert into tz_5min_power (tagname,time_value,his_date,his_time,cabinet_number)
+       select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from tz_real_time_power
+       where real_tagname like '%EP%' or real_tagname like '%EQ%' or real_tagname like '%PF%'
+    </insert>
+
+    <insert id="TimeJobBy5min_water" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into tz_5min_water (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from tz_real_time_water
+    </insert>
+
+    <insert id="TimeJobBy5min_NaturalGas" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into tz_5min_NaturalGas (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from tz_real_time_NaturalGas
+    </insert>
+
+    <insert id="TimeJobBy5min_CompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into tz_5min_CompressedAir (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from tz_real_time_CompressedAir
+    </insert>
+
+    <insert id="TimeJobBy5min_zz_power" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into zz_5min_power (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from zz_real_time_power
+        where real_tagname like '%EP%' or real_tagname like '%EQ%' or real_tagname like '%PF%'
+    </insert>
+
+    <insert id="TimeJobBy5min_zz_CompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into zz_5min_CompressedAir (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from zz_real_time_CompressedAir
+    </insert>
+
+    <insert id="TimeJobByHour_power" parameterType="com.byd.emg.pojo.Sampling_period_5min" >
+       insert into tz_hour_power (tagname,time_value,his_date,his_time,cabinet_number)
+       select real_tagname,real_time_value,'${date}','${time}',cabinet_number from tz_real_time_power
+       where real_tagname like '%EP%' or real_tagname like '%EQ%' or real_tagname like '%PF%'
+    </insert>
+
+    <insert id="TimeJobByHour_water" parameterType="com.byd.emg.pojo.Sampling_period_5min" >
+       insert into tz_hour_water (tagname,time_value,his_date,his_time,cabinet_number)
+       select real_tagname,real_time_value,'${date}','${time}',cabinet_number from tz_real_time_water
+    </insert>
+
+    <insert id="TimeJobByHour_NaturalGas" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into tz_hour_NaturalGas (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from tz_real_time_NaturalGas
+    </insert>
+
+    <insert id="TimeJobByHour_CompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into tz_hour_CompressedAir (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from tz_real_time_CompressedAir
+    </insert>
+
+    <insert id="TimeJobByHour_zz_power" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into zz_hour_power (tagname,time_value,his_date,his_time,cabinet_number)
+       select real_tagname,real_time_value,'${date}','${time}',cabinet_number from zz_real_time_power
+       where real_tagname like '%EP%' or real_tagname like '%EQ%' or real_tagname like '%PF%'
+    </insert>
+
+    <insert id="TimeJobByHour_zz_CompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into zz_hour_CompressedAir (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from zz_real_time_CompressedAir
+    </insert>
+
+    <insert id="TimeJobByDay_power" parameterType="com.byd.emg.pojo.Sampling_period_5min" >
+       insert into tz_day_power (tagname,time_value,his_date,his_time,cabinet_number)
+       select real_tagname,real_time_value,'${date}','${time}',cabinet_number from tz_real_time_power
+       where real_tagname like '%EP%' or real_tagname like '%EQ%' or real_tagname like '%PF%'
+    </insert>
+
+    <insert id="TimeJobByDay_water" parameterType="com.byd.emg.pojo.Sampling_period_5min" >
+       insert into tz_day_water (tagname,time_value,his_date,his_time,cabinet_number)
+       select real_tagname,real_time_value,'${date}','${time}',cabinet_number from tz_real_time_water
+    </insert>
+
+    <insert id="TimeJobByDay_NaturalGas" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into tz_day_NaturalGas (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from tz_real_time_NaturalGas
+    </insert>
+
+    <insert id="TimeJobByDay_CompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into tz_day_CompressedAir (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from tz_real_time_CompressedAir
+    </insert>
+
+    <insert id="TimeJobByDay_zz_power" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into zz_day_power (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from zz_real_time_power
+        where real_tagname like '%EP%' or real_tagname like '%EQ%' or real_tagname like '%PF%'
+    </insert>
+
+    <insert id="TimeJobByDay_zz_CompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into zz_day_CompressedAir (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from zz_real_time_CompressedAir
+    </insert>
+
+    <insert id="TimeJobBy5min_ch_power" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ch_5min_power (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from ch_real_time_power
+        where real_tagname like '%EP%' or real_tagname like '%EQ%' or real_tagname like '%PF%'
+    </insert>
+
+    <insert id="TimeJobBy5min_ch_water" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ch_5min_water (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from ch_real_time_water
+    </insert>
+
+    <insert id="TimeJobBy5min_ch_CompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ch_5min_CompressedAir (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from ch_real_time_CompressedAir
+    </insert>
+
+    <insert id="TimeJobByHour_ch_power" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ch_hour_power (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from ch_real_time_power
+        where real_tagname like '%EP%' or real_tagname like '%EQ%' or real_tagname like '%PF%'
+    </insert>
+
+    <insert id="TimeJobByHour_ch_water" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ch_hour_water (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from ch_real_time_water
+    </insert>
+
+    <insert id="TimeJobByHour_ch_CompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ch_hour_CompressedAir (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from ch_real_time_CompressedAir
+    </insert>
+
+    <insert id="TimeJobByDay_ch_power" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ch_day_power (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from ch_real_time_power
+        where real_tagname like '%EP%' or real_tagname like '%EQ%' or real_tagname like '%PF%'
+    </insert>
+
+    <insert id="TimeJobByDay_ch_water" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ch_day_water (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from ch_real_time_water
+    </insert>
+
+    <insert id="TimeJobByDay_ch_CompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ch_day_CompressedAir (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from ch_real_time_CompressedAir
+    </insert>
+
+    <insert id="TimeJobBy5min_cj_power" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into cj_5min_power (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from cj_real_time_power
+        where real_tagname like '%EP%' or real_tagname like '%EQ%' or real_tagname like '%PF%'
+    </insert>
+
+    <insert id="TimeJobBy5min_cj_water" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into cj_5min_water (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from cj_real_time_water
+    </insert>
+
+    <insert id="TimeJobBy5min_cj_NaturalGas" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into cj_5min_NaturalGas (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from cj_real_time_NaturalGas
+    </insert>
+
+    <insert id="TimeJobBy5min_cj_CompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into cj_5min_CompressedAir (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from cj_real_time_CompressedAir
+    </insert>
+
+    <insert id="TimeJobByHour_cj_power" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into cj_hour_power (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from cj_real_time_power
+        where real_tagname like '%EP%' or real_tagname like '%EQ%' or real_tagname like '%PF%'
+    </insert>
+
+    <insert id="TimeJobByHour_cj_water" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into cj_hour_water (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from cj_real_time_water
+    </insert>
+
+    <insert id="TimeJobByHour_cj_NaturalGas" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into cj_hour_NaturalGas (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from cj_real_time_NaturalGas
+    </insert>
+
+    <insert id="TimeJobByHour_cj_CompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into cj_hour_CompressedAir (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from cj_real_time_CompressedAir
+    </insert>
+
+    <insert id="TimeJobByDay_cj_power" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into cj_day_power (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from cj_real_time_power
+        where real_tagname like '%EP%' or real_tagname like '%EQ%' or real_tagname like '%PF%'
+    </insert>
+
+    <insert id="TimeJobByDay_cj_water" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into cj_day_water (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from cj_real_time_water
+    </insert>
+
+    <insert id="TimeJobByDay_cj_NaturalGas" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into cj_day_NaturalGas (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from cj_real_time_NaturalGas
+    </insert>
+
+    <insert id="TimeJobByDay_cj_CompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into cj_day_CompressedAir (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from cj_real_time_CompressedAir
+    </insert>
+
+    <insert id="TimeJobByMonth_power" parameterType="com.byd.emg.pojo.Sampling_period_5min" >
+       insert into tz_month_power (tagname,time_value,his_date,his_time,cabinet_number)
+       select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from tz_real_time_power
+       where real_tagname like '%EP%' or real_tagname like '%EQ%' or real_tagname like '%PF%'
+    </insert>
+
+    <insert id="TimeJobByMonth_water" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into tz_month_water (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from tz_real_time_water
+    </insert>
+
+    <insert id="TimeJobByMonth_NaturalGas" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into tz_month_NaturalGas (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from tz_real_time_NaturalGas
+    </insert>
+
+    <insert id="TimeJobByMonth_CompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into tz_month_CompressedAir (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from tz_real_time_CompressedAir
+    </insert>
+
+    <insert id="TimeJobByMonth_zz_power" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into zz_month_power (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from zz_real_time_power
+        where real_tagname like '%EP%' or real_tagname like '%EQ%' or real_tagname like '%PF%'
+    </insert>
+
+    <insert id="TimeJobByMonth_zz_CompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into zz_month_CompressedAir (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from zz_real_time_CompressedAir
+    </insert>
+
+    <insert id="TimeJobByMonth_ch_power" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ch_month_power (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from ch_real_time_power
+        where real_tagname like '%EP%' or real_tagname like '%EQ%' or real_tagname like '%PF%'
+    </insert>
+
+    <insert id="TimeJobByMonth_ch_water" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ch_month_water (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from ch_real_time_water
+    </insert>
+
+    <insert id="TimeJobByMonth_ch_CompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ch_month_CompressedAir (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from ch_real_time_CompressedAir
+    </insert>
+
+    <insert id="TimeJobByMonth_cj_power" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into cj_month_power (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from cj_real_time_power
+        where real_tagname like '%EP%' or real_tagname like '%EQ%' or real_tagname like '%PF%'
+    </insert>
+
+    <insert id="TimeJobByMonth_cj_water" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into cj_month_water (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from cj_real_time_water
+    </insert>
+
+    <insert id="TimeJobByMonth_cj_NaturalGas" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into cj_month_NaturalGas (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from cj_real_time_NaturalGas
+    </insert>
+
+    <insert id="TimeJobByMonth_cj_CompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into cj_month_CompressedAir (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from cj_real_time_CompressedAir
+    </insert>
+
+    <insert id="TimeJobByYear_power" parameterType="com.byd.emg.pojo.Sampling_period_5min" >
+       insert into tz_year_power (tagname,time_value,his_date,his_time,cabinet_number)
+       select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from tz_real_time_power
+       where real_tagname like '%EP%' or real_tagname like '%EQ%' or real_tagname like '%PF%'
+    </insert>
+
+    <insert id="TimeJobByYear_water" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into tz_year_water (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from tz_real_time_water
+    </insert>
+
+    <insert id="TimeJobByYear_NaturalGas" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into tz_year_NaturalGas (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from tz_real_time_NaturalGas
+    </insert>
+
+    <insert id="TimeJobByYear_CompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into tz_year_CompressedAir (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from tz_real_time_CompressedAir
+    </insert>
+
+    <insert id="TimeJobByYear_zz_power" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into zz_year_power (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from zz_real_time_power
+        where real_tagname like '%EP%' or real_tagname like '%EQ%' or real_tagname like '%PF%'
+    </insert>
+
+    <insert id="TimeJobByYear_zz_CompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into zz_year_CompressedAir (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from zz_real_time_CompressedAir
+    </insert>
+
+    <insert id="TimeJobByYear_ch_power" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ch_year_power (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from ch_real_time_power
+        where real_tagname like '%EP%' or real_tagname like '%EQ%' or real_tagname like '%PF%'
+    </insert>
+
+    <insert id="TimeJobByYear_ch_water" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ch_year_water (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from ch_real_time_water
+    </insert>
+
+    <insert id="TimeJobByYear_ch_CompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ch_year_CompressedAir (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from ch_real_time_CompressedAir
+    </insert>
+
+    <insert id="TimeJobByYear_cj_power" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into cj_year_power (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from cj_real_time_power
+        where real_tagname like '%EP%' or real_tagname like '%EQ%' or real_tagname like '%PF%'
+    </insert>
+
+    <insert id="TimeJobByYear_cj_water" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into cj_year_water (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from cj_real_time_water
+    </insert>
+
+    <insert id="TimeJobByYear_cj_NaturalGas" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into cj_year_NaturalGas (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from cj_real_time_NaturalGas
+    </insert>
+
+    <insert id="TimeJobByYear_cj_CompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into cj_year_CompressedAir (tagname,time_value,his_date,his_time,cabinet_number)
+        select real_tagname,real_time_value,'${date}','${time}',cabinet_number from cj_real_time_CompressedAir
+    </insert>
+
+     <!--   <insert id="row_to_column">
+    INSERT INTO tz_data_monitoring(cabinet_number,ua,ub,uc,ia,ib,ic,p,q,pf,ep,eq,time,cabinet_name)
+    (select cabinet_number,
+    MAX(case real_tagname when cabinet_number+'_Ua' then real_time_value else 0 end)ua,
+    MAX(case real_tagname when cabinet_number+'_Ub'then real_time_value else 0 end)ub,
+    MAX(case real_tagname when cabinet_number+'_Uc'then real_time_value else 0 end)uc,
+    MAX(case real_tagname when cabinet_number+'_Ia' then real_time_value else 0 end)ia,
+    MAX(case real_tagname when cabinet_number+'_Ib'then real_time_value else 0 end)ib,
+    MAX(case real_tagname when cabinet_number+'_Ic'then real_time_value else 0 end)ic,
+    MAX(case real_tagname when cabinet_number+'_P' then real_time_value else 0 end)p,
+    MAX(case real_tagname when cabinet_number+'_Q'then real_time_value else 0 end)q,
+    MAX(case real_tagname when cabinet_number+'_PF'then real_time_value else 0 end)pf,
+    MAX(case real_tagname when cabinet_number+'_EP' then real_time_value else 0 end)ep,
+    MAX(case real_tagname when cabinet_number+'_EQ'then real_time_value else 0 end)eq,
+    MAX('${time}')'${time}',
+    MAX(cabinet_name)cabinet_name
+    from  tz_real_time_power
+    GROUP BY
+    cabinet_number)
+
+    </insert>-->
+
+
+</mapper>

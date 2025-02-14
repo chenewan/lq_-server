@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.WsWorkshopYieldMapper" >
+
+    <!--计算车间产量-->
+    <select id="sumYieldByJobCode" parameterType="java.util.List" resultType="java.lang.Integer">
+        select sum(actual_num+0) from ws_workshop_yield
+        where job_code in
+        <foreach collection="jobCodeList" index="index" item="item" open="(" separator="," close=")">
+            '${item}'
+        </foreach>
+    </select>
+
+    <select id="selectAll" resultType="WsWorkshopYield">
+        select day_time as dayTime,job_code as jobCode,actual_num as actualNum,tagname from ws_workshop_yield order by tagname asc
+    </select>
+
+    <update id="updateTestByTagname" parameterType="java.util.List">
+        <foreach collection="yieldList" index="index" item="item" separator=";">
+            update ws_workshop_yield set
+            actual_num='${item.actualNum}',
+            day_time='${item.dayTime}'
+            where tagname='${item.tagname}'
+        </foreach>
+    </update>
+
+</mapper>

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.HistoryRecordMapper" >
+    <sql id="HistoryRecord_Column_List">
+        id,his_tagname,real_time_value,time
+    </sql>
+
+    <resultMap id="historyRecordsResultMap" type="com.byd.emg.pojo.Sampling_period_5min" >
+        <id column="id" property="id" />
+        <result column="tagname" property="tagname"/>
+        <result column="time_value" property="time_value"/>
+        <result column="his_date" property="his_date"/>
+        <result column="his_time" property="his_time"/>
+        <result column="cabinet_number" property="cabinet_number"/>
+    </resultMap>
+
+    <!--根据tagname和日期来查询当天的历史记录-->
+    <select id="getHistoryRecordByTagnameList" resultType="Sampling_period_5min">
+        <foreach collection="historyParameterList" index="index" item="item" separator="UNION ALL">
+            SELECT
+            ${time_value},time,tagname
+            FROM
+            ${item.table_name}
+            WHERE
+            tagname ='${item.ca_number}'+'${type}'
+            AND
+            time &gt;= '${startDate}'+' ${startTime}'
+            AND
+            time &lt;='${endDate}'+' ${endTime}'
+        </foreach>
+    </select>
+
+    <select id="getHisDflzmList" resultType="Sampling_period_5min">
+        <foreach collection="historyParameterList" index="index" item="item" separator="UNION ALL">
+            SELECT
+            time_value as consumeValue,time,tagname
+            FROM
+            ${item.table_name}
+            WHERE
+            tagname ='${item.ca_number}'
+            AND
+            convert(varchar,time,23)  &gt;= '${startDate}'
+            AND
+            convert(varchar,time,23) &lt;='${endDate}'
+        </foreach>
+    </select>
+
+
+    <select id="getRealByList" parameterType="java.util.List" resultType="Sampling_period_5min">
+        <foreach collection="historyParameterList" index="index" item="item" separator="UNION ALL">
+            SELECT ${item.con}
+            FROM ${item.realTable}
+            WHERE
+            ${item.wCon}
+        </foreach>
+    </select>
+
+    <!--实际单元能耗和累计单元能耗功能模块用到-->
+    <select id="getCostValueByTagnameList" resultType="Sampling_period_5min">
+        <foreach collection="historyParameterList" index="index" item="item" separator="UNION ALL">
+            SELECT
+            ${time_value},time,tagname
+            FROM
+            ${item.table_name}
+            WHERE
+            tagname ='${item.ca_number}'
+            AND
+            time &gt;= '${startDate}'
+            AND
+            time &lt;='${endDate}'
+        </foreach>
+    </select>
+
+    <select id="getBdzRecordByTagnameList" resultType="Sampling_period_5min">
+        <foreach collection="historyParameterList" index="index" item="item" separator="UNION ALL">
+            SELECT
+            ${time_value},his_date,his_time,tagname
+            FROM
+            ${item.table_name}
+            WHERE
+            tagname ='${item.ca_number}'+'${type}'
+            AND
+            his_date &gt;= '${startDate}'
+            AND
+            his_date &lt;='${endDate}'
+        </foreach>
+    </select>
+
+    <select id="selectDataByDate" resultType="java.lang.Double">
+        select sum(time_value) from ${table_name} where CONVERT(varchar(100), time, 23) like '${queryDate}%'
+        and tagname in
+        <foreach collection="tagnameList" index="index" item="item" open="(" separator="," close=")">
+            '${item}'
+        </foreach>
+    </select>
+
+    <!--同比查询的曲线查询-->
+    <select id="getCurveData" parameterType="java.lang.String" resultType="com.byd.emg.resultentity.ConsumeData">
+        select time_value,CONVERT(varchar(100), time, 120) time from ${table_name} where
+        CONVERT(varchar(100), time, 23) like '${queryDate}%'
+        and tagname in
+        <foreach collection="tagnameList" index="index" item="item" open="(" separator="," close=")">
+            '${item}'
+        </foreach>
+    </select>
+
+    <select id="selectRangeDate" resultType="java.lang.String">
+        select top 1 * from
+        (<foreach collection="tableNameList" index="index" item="item" separator="union all">
+            (select top 1 left(his_date,7) as his_date from ${item}
+            where tagname  in
+            <foreach collection="tagnameList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            and time_value!='0.000' ${sort})
+        </foreach>) a ${sort}
+    </select>
+
+    <select id="getminbymin"    resultMap="historyRecordsResultMap">
+        SELECT tagname,time_value,cabinet_number ,(his_date+'  '+his_time) AS time  FROM ${table_name}
+        WHERE time_value =
+        (SELECT
+          min (time_value)
+        FROM
+            ${table_name}
+        WHERE
+            tagname ='${cn1}'+'${type}'
+        AND
+            cabinet_number= '${cn1}'
+        AND
+            his_date BETWEEN  '${startDate}'
+        AND  '${endDate}'
+        AND his_time BETWEEN  '${startTime}'
+        AND  '${endTime}')
+        AND tagname = '${cn1}'+'${type}'
+
+    </select>
+
+
+    <select id="getmaxbymin"    resultMap="historyRecordsResultMap">
+        SELECT  tagname,time_value,cabinet_number ,(his_date+'  '+his_time)AS time FROM ${table_name}
+        WHERE time_value =
+        (SELECT
+          max (time_value)
+        FROM
+            ${table_name}
+        WHERE
+            tagname ='${cn1}'+'${type}'
+        AND
+            cabinet_number= '${cn1}'
+        AND
+            his_date BETWEEN  '${startDate}'
+        AND  '${endDate}'
+        AND his_time BETWEEN  '${startTime}'
+        AND  '${endTime}')
+        AND tagname = '${cn1}'+'${type}'
+    </select>
+
+
+</mapper>
+
+

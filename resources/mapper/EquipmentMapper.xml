@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.EquipmentMapper">
+
+    <select id="networkData" parameterType="java.lang.String" resultType="Equipment">
+        select id,tagname,name,alarmState,type,line,lineName from [${name}] order by line asc,tagname asc
+    </select>
+
+    <select id="ztAlarm" parameterType="java.lang.String" resultType="com.byd.emg.resultentity.EquipZtAlarmData">
+        select tagname,name from [${name}]
+    </select>
+
+
+</mapper>

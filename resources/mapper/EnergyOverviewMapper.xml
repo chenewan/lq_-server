@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.EnergyOverviewMapper">
+    <sql id="Bar_Column_List">
+        id,tagname,chartNumber,xValue,yValue,percentage,dateType
+    </sql>
+
+    <sql id="Line_Column_List">
+        id,tagname,chartNumber,xValue,yValue,dateType
+    </sql>
+
+    <select id="selectByDataType" parameterType="java.lang.String" resultType="OverviewBar">
+        select
+        <include refid="Bar_Column_List" />
+        from ${tableName} where chartNumber='${chartNumber}' and dateType='${type}'
+    </select>
+
+    <select id="workShopList" resultType="java.lang.String">
+        select xValue from ${tableName} where chartNumber='${chartNumber}' and dateType='月'
+    </select>
+
+    <!--变压器车间的下拉选-->
+    <select id="transformerWorkShopList" resultType="java.lang.String">
+        select xValue from overview_power_bar where chartNumber='ELE_02' and dateType='月' and xValue not like '%3PL%' order by id asc
+    </select>
+
+    <!--查询车间下的变压器-->
+    <select id="selectTransformerList" resultType="java.lang.String">
+        select distinct xValue from overview_power_bar where chartNumber='ELE_03' and tagname like '%${marks}%'
+    </select>
+
+    <select id="selectBrokenLineData" resultType="OverviewBar">
+        select
+        <include refid="Line_Column_List" />
+        from ${tableName} where chartNumber='${chartNumber}' and dateType='${type}' and tagname like '%${marks}%'
+    </select>
+
+    <select id="selectTagname" parameterType="java.lang.String" resultType="java.lang.String">
+        select top 1 tagname from overview_power_bar where tagname like '%${marks}%' and xValue='${transformerName}' and dateType like '%${type}%'
+    </select>
+
+    <select id="selectTagnameByWorkshop" parameterType="java.lang.String" resultType="java.lang.String">
+        select top 1 tagname from overview_oil_bar where xValue='${workShop}' and chartNumber='${chartNumber}'
+        and dateType='${type}'
+    </select>
+
+    <select id="selectOverviewBarDb"  parameterType="java.lang.String" resultType="OverviewBar">
+        select * from overview_oil_bar
+        where tagname  in
+        <foreach collection="insertOverviewBarList" index="index" item="item" open="(" separator="," close=")">
+            '${item}'
+        </foreach>
+    </select>
+
+    <!--获取能耗曲线数据-->
+    <select id="getNengHaoData" parameterType="java.util.List" resultType="com.byd.emg.resultentity.ConsumeData">
+        <foreach collection="tableList" index="index" item="item" separator="UNION ALL">
+            select time_value,his_date,his_time from ${item.tableName} where tagname='${item.tagname}'
+            and his_date like '%${queryTime}%'
+        </foreach>
+    </select>
+
+    <update id="batchUpdateOverviewBar" parameterType="java.util.List">
+        <foreach collection="updateOverviewBarList" index="index" item="item" separator=";">
+            update overview_oil_bar set
+            yValue='${item.yValue}',
+            updatetime='${updatetime}'
+            where tagname='${item.tagname}'
+        </foreach>
+    </update>
+
+    <delete id="deleteOverviewBar">
+        truncate table  ${tableName}
+    </delete>
+
+    <delete id="deleteOverviewLine">
+        truncate table  ${tableName}
+    </delete>
+
+    <insert id="batchInsertOverviewLine" parameterType="java.util.List">
+        <foreach collection="insertOverviewLineList" index="index" item="item" separator=";">
+            insert into ${tableName} (tagname,chartNumber,xValue,yValue,dateType,updatetime)
+            values ('${item.tagname}','${item.chartNumber}','${item.xTime}','${item.yValue}',
+            '${item.dateType}','${updatetime}')
+        </foreach>
+    </insert>
+
+    <insert id="batchInsertOverviewBar" parameterType="java.util.List">
+        <foreach collection="insertOverviewBarList" index="index" item="item" separator=";">
+            insert into ${tableName} (tagname,chartNumber,xValue,yValue,percentage,dateType,updatetime)
+            values ('${item.tagname}','${item.chartNumber}','${item.xValue}','${item.yValue}','${item.percentage}'
+            ,'${item.dateType}','${updatetime}')
+        </foreach>
+    </insert>
+
+</mapper>

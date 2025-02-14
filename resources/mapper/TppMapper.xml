@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.TppMapper" >
+
+    <resultMap id="MenuMap" type="com.byd.emg.pojo.TppMenu">
+        <id column="primary_key" property="primaryKey" />
+        <result column="id" property="id" />
+        <result column="value" property="value" />
+        <result column="label"  property="label" />
+        <result column="set_value"  property="setValue" />
+        <result column="parent_id"  property="parentId" />
+        <result column="type"  property="type" />
+    </resultMap>
+
+    <resultMap id="SetMap" type="com.byd.emg.pojo.TppSetting">
+        <id column="primary_key" property="primaryKey" />
+        <result column="id" property="id" />
+        <result column="value" property="value" />
+        <result column="label"  property="label" />
+        <result column="set_value"  property="setValue" />
+        <result column="name"  property="name" />
+    </resultMap>
+    <update id="updateSet">
+        <foreach collection="updateList" index="index" item="item" separator=";">
+            update menu_table_technology set
+            set_value='${item.setValue}', unit='${item.unit}' where id='${item.id}'
+        </foreach>
+
+    </update>
+    <select id="getNav" resultMap="MenuMap">
+        select * from  menu_table_technology
+        <where>
+            len(parent_id) > 0
+            <if test="type == 0">
+                and len(value) = 0
+            </if>
+        </where>
+        order by case when sort is null then 1 else 0 end ,sort
+    </select>
+    <select id="listSet" resultMap="SetMap">
+         select *,b.label name from  menu_table_technology a
+         left join menu_table_technology b on a.parent_id = b.id
+         where a.parent_id  in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            '${id}'
+        </foreach>
+
+    </select>
+
+
+    <select id="getRealTimeData" resultType="map">
+ select update_time day_time,monitored_parameter actual_num,tagname from  ws_monitor
+ UNION all
+ SELECT date day_time ,  real_time_value  actual_num, real_tagname  tagname FROM  tz_real_time_power
+   where cabinet_number in ('TZ_EMS20607','TZ_EMS20608','TZ_EMS20609')
+    </select>
+    <select id="listParams" resultType="java.util.Map">
+        select b.label name ,a.label,a.value  ,a.set_value,a.unit, c.cur_ws_value,e.cur_tz_value,
+        CASE left(a.value,2) WHEN 'TZ' THEN e.cur_tz_value ELSE cur_ws_value END cur_value
+        from  menu_table_technology a
+        left join menu_table_technology b on a.parent_id = b.id
+        left join ( select monitored_parameter cur_ws_value,tagname from ws_monitor ) c on a.value = c.tagname
+        left join ( select real_time_value cur_tz_value,real_tagname from tz_real_time_power ) e on a.value = e.real_tagname
+where a.value  in
+    <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+        '${id}'
+    </foreach>
+
+    </select>
+
+
+    <insert id="batchInsert">
+        INSERT INTO tpp_alarm_record(start_time,end_time,duration,tagname)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            ('${item.startTime}','${item.endTime}',${item.duration},'${item.tagname}')
+        </foreach>
+    </insert>
+
+    <update id="batchUpdate">
+        <foreach collection="list" index="index" item="item" separator=";">
+            update tpp_alarm_record set
+            end_time='${item.endTime}', duration=duration+5
+            where tagname='${item.tagname}' and  start_time='${item.startTime}'
+        </foreach>
+
+    </update>
+
+
+
+
+    <select id="listDay" resultType="java.util.Map">
+select tagname,  left(CONVERT(varchar(100),start_time, 120),10) time, count(1) num,sum(duration) duration,
+( SELECT  right(CONVERT(varchar(100),start_time, 120),8)  + '-'+ right(CONVERT(varchar(100),end_time, 120),8) +',' FROM tpp_alarm_record WHERE
+tagname = a.tagname and left(CONVERT(varchar(100),start_time, 120),10) =left(CONVERT(varchar(100),a.start_time, 120),10) FOR XML PATH('')) as times
+from tpp_alarm_record a where start_time BETWEEN '${startTime}' and  '${endTime}' and
+        a.tagname  in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            '${id}'
+        </foreach>
+group by tagname, left(CONVERT(varchar(100),start_time, 120),10)
+    </select>
+
+    <select id="listMonth" resultType="java.util.Map">
+        select tagname,  left(CONVERT(varchar(100),start_time, 120),7) time, count(1) num,sum(duration) duration,
+        ( SELECT  DISTINCT left(CONVERT(varchar(100),start_time, 120),10)   +',' FROM tpp_alarm_record WHERE
+        tagname = a.tagname and left(CONVERT(varchar(100),start_time, 120),7) = left(CONVERT(varchar(100),a.start_time, 120),7) FOR XML PATH('')) as times
+        from tpp_alarm_record a
+        where start_time BETWEEN '${startTime}' and  '${endTime}' and
+        a.tagname  in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            '${id}'
+        </foreach>
+        group by tagname, left(CONVERT(varchar(100),start_time, 120),7)
+    </select>
+
+
+    <select id="listYear" resultType="java.util.Map">
+        select tagname,  left(CONVERT(varchar(100),start_time, 120),4) time, count(1) num,sum(duration) duration,
+        ( SELECT  DISTINCT left(CONVERT(varchar(100),start_time, 120),7)   +',' FROM tpp_alarm_record WHERE
+        tagname = a.tagname and left(CONVERT(varchar(100),start_time, 120),4) = left(CONVERT(varchar(100),a.start_time, 120),4) FOR XML PATH('')) as times
+        from tpp_alarm_record a
+        where start_time BETWEEN '${startTime}' and  '${endTime}' and
+        a.tagname  in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            '${id}'
+        </foreach>
+        group by tagname, left(CONVERT(varchar(100),start_time, 120),4)
+    </select>
+    <select id="getRealTz" resultType="java.util.Map">
+select * from tz_real_time_power where cabinet_number in ('TZ_EMS20607','TZ_EMS20608','TZ_EMS20609')
+   </select>
+    <select id="getRealByIds" resultType="java.util.Map">
+        select * from tz_real_time_power where real_tagname in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            '${id}'
+        </foreach>
+
+    </select>
+    <select id="getOutList" resultType="java.util.Map">
+   select tagname,duration,
+   CONVERT(varchar(100),start_time, 120) startTime,
+   CONVERT(varchar(100),end_time, 120) endTime from tpp_alarm_record where tagname  in
+    <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+        '${id}'
+    </foreach>
+    and CONVERT(varchar(100),end_time, 120) = '${date}'
+
+
+    </select>
+    <select id="list" resultType="java.util.Map">
+        select tagname,duration,
+        CONVERT(varchar(100),start_time, 120) start_time,
+        CONVERT(varchar(100),end_time, 120) end_time
+        from tpp_alarm_record where (
+        start_time BETWEEN '${startTime}' and  '${endTime}'
+        or   end_time BETWEEN '${startTime}' and  '${endTime}'
+        or ( start_time <![CDATA[<= ]]> '${startTime}' and  end_time <![CDATA[>= ]]> '${endTime}' )
+        ) and
+        tagname  in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            '${id}'
+        </foreach>
+        order by end_time
+
+    </select>
+
+
+</mapper>

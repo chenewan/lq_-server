@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.EemMapper" >
+
+    <resultMap id="LineMap" type="com.byd.emg.pojo.EemMenu">
+        <id column="menu_id" property="menuId" />
+        <result column="id" property="id" />
+        <result column="menu_name" property="menuName" />
+        <result column="in_label"  property="inLabel" />
+        <result column="in_formula"  property="inFormula" />
+        <result column="out_label"  property="outLabel" />
+        <result column="out_formula"  property="outFormula" />
+        <result column="parent_id"  property="parentId" />
+    </resultMap>
+
+    <select id="getPowerNav"  resultMap="LineMap">
+       select  * from eem_power ORDER BY menu_id
+    </select>
+
+    <select id="getGasNav"  resultMap="LineMap">
+       select  * from eem_gas ORDER BY menu_id
+    </select>
+
+    <select id="getOilNav"  resultMap="LineMap">
+       select  * from eem_oil ORDER BY menu_id
+    </select>
+
+
+    <select id="listPower"  resultType="map">
+        select a.menu_id,b.menu_name,CONVERT(varchar(100),time, 120) time,in_value,out_value,diff_value,
+        rate from  ${table} a
+        left join eem_power b on a.menu_id = b.menu_id
+        where  a.menu_id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            '${id}'
+        </foreach>
+        and
+        time BETWEEN '${startTime}' and '${endTime}'
+    </select>
+
+    <select id="listGas"  resultType="map">
+        select a.menu_id,b.menu_name,CONVERT(varchar(100),time, 120) time,in_value,out_value,diff_value,
+        rate from  ${table} a
+        left join eem_gas b on a.menu_id = b.menu_id
+        where  a.menu_id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            '${id}'
+        </foreach>
+        and
+        time BETWEEN '${startTime}' and '${endTime}'
+    </select>
+
+    <select id="listOil"  resultType="map">
+        select a.menu_id,b.menu_name,CONVERT(varchar(100),time, 120) time,in_value,out_value,diff_value,
+        rate from  ${table} a
+        left join eem_oil b on a.menu_id = b.menu_id
+        where  a.menu_id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            '${id}'
+        </foreach>
+        and
+        time BETWEEN '${startTime}' and '${endTime}'
+    </select>
+    <select id="listMenu" resultMap="LineMap">
+            select  * from ${table} where len(in_formula)>0 or len(out_formula) >0 ORDER BY menu_id
+
+    </select>
+
+    <select id="listValue"  resultType="map">
+        select * from  ${tableName}
+        where  tagname in
+        <foreach collection="tagnames" item="id" index="index" open="(" close=")" separator=",">
+            '${id}'
+        </foreach>
+        and
+        <if test="cycle == 'hour'">
+            his_date = '${hisDate}' and left(his_time,2)='${hour}'
+        </if>
+        <if test="cycle == 'day'">
+            his_date = '${hisDate}'
+        </if>
+        <if test="cycle == 'month'">
+            left(his_date,7)='${hisDate}'
+        </if>
+        <if test="cycle == 'year'">
+            left(his_date,4)='${hisDate}'
+        </if>
+
+    </select>
+
+    <delete id="batchDelete">
+        delete ${table} where
+        menu_id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            ${id}
+        </foreach>
+        and time = '${time}'
+
+    </delete>
+
+    <insert id="batchInsert">
+        INSERT INTO ${table}(menu_id,time,in_value,out_value,diff_value,rate)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (${item.menuId},'${item.time}',${item.inValue},${item.outValue},${item.diffValue},${item.rate})
+        </foreach>
+    </insert>
+
+
+
+    <select id="getCount" resultType="java.util.Map">
+
+        select tagname,sum(time_value) time_value from  ${table}
+        where  tagname in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            '${id}'
+        </foreach>
+        and
+        <if test="cycle == 0">
+            his_date = '${time}'
+        </if>
+        <if test="cycle == 1">
+            left(his_date,7)='${time}'
+        </if>
+        <if test="cycle == 2">
+            left(his_date,4)='${time}'
+        </if>
+        group by tagname
+
+    </select>
+    <select id="listGasMenu" resultMap="LineMap">
+        select * from eem_oil where
+        id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            ${id}
+        </foreach>
+
+    </select>
+    <select id="getPower" resultType="java.util.Map">
+        select b.id,a.in_value,a.out_value,a.diff_value,a.rate from ${table} a
+        left join eem_power b on a.menu_id = b.menu_id
+        where time = '${time}'
+    </select>
+    <select id="getPvPower" resultType="java.util.Map">
+        select tagname,time_value from ${table}
+        where  tagname in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            '${id}'
+        </foreach>
+        and
+        <if test="cycle == 0">
+            his_date = '${time}'
+        </if>
+        <if test="cycle == 1">
+            left(his_date,7)='${time}'
+        </if>
+        <if test="cycle == 2">
+            left(his_date,4)='${time}'
+        </if>
+    </select>
+
+</mapper>

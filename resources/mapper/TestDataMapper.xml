@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.TestDataMapper" >
+
+    <select id="selectData" parameterType="java.lang.String" resultType="Sampling_period_5min">
+        select * from ${tbleName} order by his_date asc,his_time asc,tagname asc
+    </select>
+
+    <update id="batchUpdate">
+        <foreach collection="dbList" index="index" item="item" separator=";">
+            update ${tbleName} set
+            time_value='${item.time_value}'
+            where tagname='${item.tagname}'
+        </foreach>
+    </update>
+
+    <select id="selectRealData" resultType="RealTimeValue">
+        select real_time_value realValue,real_tagname realTagname
+        from ${tableName} order by date asc,time asc,real_tagname asc
+    </select>
+
+    <select id="allTagList" resultType="java.lang.String">
+        select distinct cabinet_number
+        from ${tableName}
+    </select>
+
+    <delete id="delete">
+        delete from ${consumeTable} where his_date &gt;='${startDate}' and his_date &lt;='${endDate}'
+    </delete>
+
+    <delete id="deleteByDate">
+        delete from ${consumeTable} where his_date+' '+his_time  like '%${queryHour}%'
+    </delete>
+
+    <update id="batchUpdate_2">
+        <foreach collection="realTimeValueList" index="index" item="item" separator=";">
+            update ${tbleName} set
+            real_time_value='${item.realValue}',
+            date='${item.date}',
+            time='${item.time}'
+            where real_tagname='${item.realTagname}'
+        </foreach>
+    </update>
+
+</mapper>

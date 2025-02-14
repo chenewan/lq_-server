@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.TZmonitorMapper" >
+    <sql id="Base_Column_List">
+        id,monitored_code,monitored_parameter,successed,update_time,tagname
+    </sql>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        insert into ws_monitor (monitored_code,monitored_parameter,successed,update_time,tagname)
+        values
+        <foreach collection="tZmonitorList" index="index" item="item" separator=",">
+            ('${item.monitored_code}','${item.monitored_parameter}','${item.successed}','${item.update_time}','${item.tagname}')
+        </foreach>
+    </insert>
+
+    <select id="selectTZmonitor" resultType="WsAlarmPoint">
+        select code,tagname from ws_alarm_point
+    </select>
+
+    <update id="clearData">
+        truncate table ws_monitor
+    </update>
+
+
+</mapper>

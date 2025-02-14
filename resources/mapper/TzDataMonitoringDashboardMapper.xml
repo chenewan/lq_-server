@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.TzDataMonitoringDashboardMapper" >
+    <sql id="ResourceMeter_Column_List" >
+        id,num,tagname,max_value,min_value,describe,area,workshop,unit_symbol,type
+    </sql>
+    <sql id="TzDataMonitoringDashboard_Column_List" >
+        tz_id,dash_tagname,upper_limit,lower_limit
+    </sql>
+
+    <resultMap id="resourceMeterPageResultMap" type="com.byd.emg.pojo.ResourceMeter" >
+        <!-- 一对一关系的主表(real_tz_original_table)  ResourceMeter-->
+        <id column="id" property="id" />
+        <result column="num" property="num" />
+        <result column="tagname" property="tagname" />
+        <result column="max_value" property="maxValue" />
+        <result column="min_value" property="minValue" />
+        <result column="describe" property="describe" />
+        <result column="area" property="area" />
+        <result column="workshop" property="workShop" />
+        <result column="unit_symbol" property="unitSymbol" />
+        <result column="type" property="type" />
+
+        <!-- 一对一关系的从表(real_tz_dashboard)    EnergyMeterPage -->
+        <association property="tzDataMonitoringDashboard" javaType="com.byd.emg.pojo.TzDataMonitoringDashboard">
+            <id column="tz_id" property="tz_id" />
+            <result column="dash_tagname" property="dash_tagname" />
+            <result column="upper_limit" property="upper_limit" />
+            <result column="lower_limit" property="lower_limit" />
+            <result column="customname" property="customname" />
+            <result column="name_display_settings" property="name_display_settings" />
+        </association>
+    </resultMap>
+
+
+    <!--查询所有的电表信息-->
+       <select id="findEnergyMeterPageAll" resultMap="resourceMeterPageResultMap">
+        select t1.* from(
+        SELECT dashboard.tz_id,dashboard.dash_tagname,dashboard.upper_limit,dashboard.lower_limit,dashboard.customname,
+        dashboard.name_display_settings,
+        resource.id,
+        resource.num,resource.tagname,resource.max_value,resource.min_value,resource.describe,resource.area,
+        resource.workshop,resource.unit_symbol,resource.type,resource.cabinet_number
+        FROM ${table_name} dashboard INNER JOIN tz_original_table resource ON
+        dashboard.dash_tagname=resource.tagname
+        <where>
+            resource.cabinet_number in
+            <foreach collection="cabinet_number" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+
+        </where>
+        )    t1
+
+        <where>
+            <if test="Search_parameters!='' and Search_parameters!=null">
+                t1.customname like '%${Search_parameters}%'
+                or
+                t1.dash_tagname like '%${Search_parameters}%'
+                or
+                t1.describe like '%${Search_parameters}%'
+            </if>
+        </where>
+        ORDER BY t1.tz_id
+    </select>
+    <!--查询所有的水表信息-->
+    <select id="findEnergyMeterPageAll_water" resultMap="resourceMeterPageResultMap">
+
+        select t1.* from(
+        SELECT dashboard.tz_water_id,dashboard.dash_tagname,dashboard.upper_limit,dashboard.lower_limit,dashboard.customname,
+        dashboard.name_display_settings,
+        resource.id,
+        resource.num,resource.tagname,resource.max_value,resource.min_value,resource.describe,resource.area,
+        resource.workshop,resource.unit_symbol,resource.type,resource.cabinet_number
+        FROM ${table_name} dashboard INNER JOIN tz_original_table resource ON
+        dashboard.dash_tagname=resource.tagname
+        <where>
+            resource.cabinet_number in
+            <foreach collection="cabinet_number" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+
+        </where>
+        )    t1
+
+        <where>
+            <if test="Search_parameters!='' and Search_parameters!=null">
+                t1.customname like '%${Search_parameters}%'
+                or
+                t1.dash_tagname like '%${Search_parameters}%'
+                or
+                t1.describe like '%${Search_parameters}%'
+            </if>
+        </where>
+        ORDER BY t1.tz_water_id
+    </select>
+
+
+    <!--查询所有的压缩空气表信息-->
+    <select id="findEnergyMeterPageAll_CompressedAir" resultMap="resourceMeterPageResultMap">
+
+        select t1.* from(
+        SELECT dashboard.tz_CompressedAir_id,dashboard.dash_tagname,dashboard.upper_limit,dashboard.lower_limit,dashboard.customname,
+        dashboard.name_display_settings,
+        resource.id,
+        resource.num,resource.tagname,resource.max_value,resource.min_value,resource.describe,resource.area,
+        resource.workshop,resource.unit_symbol,resource.type,resource.cabinet_number
+        FROM ${table_name} dashboard INNER JOIN tz_original_table resource ON
+        dashboard.dash_tagname=resource.tagname
+        <where>
+            resource.cabinet_number in
+            <foreach collection="cabinet_number" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+
+        </where>
+        )    t1
+
+        <where>
+            <if test="Search_parameters!='' and Search_parameters!=null">
+                t1.customname like '%${Search_parameters}%'
+                or
+                t1.dash_tagname like '%${Search_parameters}%'
+                or
+                t1.describe like '%${Search_parameters}%'
+            </if>
+        </where>
+        ORDER BY t1.tz_CompressedAir_id
+    </select>
+
+
+    <!--查询所有的天然气表信息-->
+    <select id="findEnergyMeterPageAll_NaturalGas" resultMap="resourceMeterPageResultMap">
+
+        select * from (
+        SELECT dashboard.tz_NaturalGas_id,dashboard.dash_tagname,dashboard.upper_limit,dashboard.lower_limit,dashboard.customname,
+        dashboard.name_display_settings,
+        resource.id,
+        resource.num,resource.tagname,resource.max_value,resource.min_value,resource.describe,resource.area,
+        resource.workshop,resource.unit_symbol,resource.type,resource.cabinet_number
+        FROM ${table_name} dashboard INNER JOIN tz_original_table resource ON
+        dashboard.dash_tagname=resource.tagname
+        <where>
+            resource.cabinet_number in
+            <foreach collection="cabinet_number" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+
+        </where>
+        )    t1
+
+        <where>
+            <if test="Search_parameters!='' and Search_parameters!=null">
+                t1.customname like '%${Search_parameters}%'
+                or
+                t1.dash_tagname like '%${Search_parameters}%'
+                or
+                t1.describe like '%${Search_parameters}%'
+            </if>
+        </where>
+        ORDER BY t1.tz_NaturalGas_id
+    </select>
+
+    <insert id="insertGauge" >
+        insert into ${table_name} (dash_tagname,upper_limit,lower_limit,customname)
+        values('${energyMeterPage.dash_tagname}','${energyMeterPage.upper_limit}','${energyMeterPage.lower_limit}',
+        '${energyMeterPage.customname}');
+    </insert>
+<!--修改电的仪表盘属性-->
+    <update id="updateByPrimaryGauge">
+        update ${table_name}
+        <set>
+            <if test="energyMeterPage.dash_tagname!='' and energyMeterPage.dash_tagname!=null">
+                dash_tagname = '${energyMeterPage.dash_tagname}',
+            </if>
+            <if test="energyMeterPage.upper_limit!='' and energyMeterPage.upper_limit!=null">
+                upper_limit= '${energyMeterPage.upper_limit}',
+            </if>
+            <if test="energyMeterPage.lower_limit!='' and energyMeterPage.lower_limit!=null">
+                lower_limit= '${energyMeterPage.lower_limit}',
+            </if>
+
+            <if test="energyMeterPage.customname!='' and energyMeterPage.customname!=null">
+                customname= '${energyMeterPage.customname}'
+            </if>
+
+            <if test="energyMeterPage.name_display_settings!='' and energyMeterPage.name_display_settings!=null">
+                name_display_settings= '${energyMeterPage.name_display_settings}'
+            </if>
+        </set>
+        where tz_id = #{energyMeterPage.tz_id,jdbcType=INTEGER}
+    </update>
+
+    <!--修改水表仪表盘属性-->
+    <update id="updateByPrimaryGauge_water">
+        update ${table_name}
+        <set>
+            <if test="energyMeterPage.dash_tagname!='' and energyMeterPage.dash_tagname!=null">
+                dash_tagname = '${energyMeterPage.dash_tagname}',
+            </if>
+            <if test="energyMeterPage.upper_limit!='' and energyMeterPage.upper_limit!=null">
+                upper_limit= '${energyMeterPage.upper_limit}',
+            </if>
+            <if test="energyMeterPage.lower_limit!='' and energyMeterPage.lower_limit!=null">
+                lower_limit= '${energyMeterPage.lower_limit}',
+            </if>
+            <if test="energyMeterPage.customname!='' and energyMeterPage.customname!=null">
+                customname= '${energyMeterPage.customname}'
+            </if>
+            <if test="energyMeterPage.name_display_settings!='' and energyMeterPage.name_display_settings!=null">
+                name_display_settings= '${energyMeterPage.name_display_settings}'
+            </if>
+        </set>
+        where tz_water_id = #{energyMeterPage.tz_id,jdbcType=INTEGER}
+    </update>
+
+    <!--修改压缩空气仪表盘属性-->
+    <update id="updateByPrimaryGauge_CompressedAir">
+        update ${table_name}
+        <set>
+            <if test="energyMeterPage.dash_tagname!='' and energyMeterPage.dash_tagname!=null">
+                dash_tagname = '${energyMeterPage.dash_tagname}',
+            </if>
+            <if test="energyMeterPage.upper_limit!='' and energyMeterPage.upper_limit!=null">
+                upper_limit= '${energyMeterPage.upper_limit}',
+            </if>
+            <if test="energyMeterPage.lower_limit!='' and energyMeterPage.lower_limit!=null">
+                lower_limit= '${energyMeterPage.lower_limit}',
+            </if>
+
+            <if test="energyMeterPage.customname!='' and energyMeterPage.customname!=null">
+                customname= '${energyMeterPage.customname}'
+            </if>
+
+            <if test="energyMeterPage.name_display_settings!='' and energyMeterPage.name_display_settings!=null">
+                name_display_settings= '${energyMeterPage.name_display_settings}'
+            </if>
+        </set>
+        where tz_CompressedAir_id = #{energyMeterPage.tz_id,jdbcType=INTEGER}
+    </update>
+
+
+    <!--修改天然气仪表盘属性-->
+    <update id="updateByPrimaryGauge_NaturalGas">
+        update ${table_name}
+        <set>
+            <if test="energyMeterPage.dash_tagname!='' and energyMeterPage.dash_tagname!=null">
+                dash_tagname = '${energyMeterPage.dash_tagname}',
+            </if>
+            <if test="energyMeterPage.upper_limit!='' and energyMeterPage.upper_limit!=null">
+                upper_limit= '${energyMeterPage.upper_limit}',
+            </if>
+            <if test="energyMeterPage.lower_limit!='' and energyMeterPage.lower_limit!=null">
+                lower_limit= '${energyMeterPage.lower_limit}',
+            </if>
+
+            <if test="energyMeterPage.customname!='' and energyMeterPage.customname!=null">
+                customname= '${energyMeterPage.customname}'
+            </if>
+
+            <if test="energyMeterPage.name_display_settings!='' and energyMeterPage.name_display_settings!=null">
+                name_display_settings= '${energyMeterPage.name_display_settings}'
+            </if>
+        </set>
+        where tz_NaturalGas_id = #{energyMeterPage.tz_id,jdbcType=INTEGER}
+    </update>
+
+    <delete id="deleteGuage">
+      delete from ${table_name} where tz_id =  ${tz_id}
+    </delete>
+
+    <delete id="deleteGuage_water">
+      delete from ${table_name} where tz_water_id =  ${tz_id}
+    </delete>
+
+    <delete id="deleteGuage_CompressedAir">
+      delete from ${table_name} where tz_CompressedAir_id =  ${tz_id}
+    </delete>
+
+    <delete id="deleteGuage_NaturalGas">
+      delete from ${table_name} where tz_NaturalGas_id =  ${tz_id}
+    </delete>
+
+
+    <select id="findTagname" resultType="java.lang.String">
+        SELECT
+        tagname
+        FROM tz_original_table
+
+    </select>
+
+    <select id="findDescribe" resultMap="resourceMeterPageResultMap">
+  SELECT dashboard.tz_id,dashboard.dash_tagname,dashboard.upper_limit,dashboard.lower_limit,dashboard.customname, dashboard.name_display_settings,
+
+   resource.id,resource.num,resource.tagname,resource.max_value,resource.min_value,resource.describe,resource.area,resource.workshop,resource.unit_symbol,resource.type
+
+  FROM ${table_name} dashboard INNER JOIN tz_original_table resource ON dashboard.dash_tagname=resource.tagname
+
+
+    where dashboard.dash_tagname= '${tagname}'
+
+    </select>
+
+
+    <select id="findDescribe_water" resultMap="resourceMeterPageResultMap">
+  SELECT dashboard.tz_water_id,dashboard.dash_tagname,dashboard.upper_limit,dashboard.lower_limit,dashboard.customname, dashboard.name_display_settings,
+
+   resource.id,resource.num,resource.tagname,resource.max_value,resource.min_value,resource.describe,resource.area,resource.workshop,resource.unit_symbol,resource.type
+
+  FROM tz_data_monitoring_dashboard_water dashboard INNER JOIN tz_original_table resource ON dashboard.dash_tagname=resource.tagname
+
+
+    where dashboard.dash_tagname= '${tagname}'
+
+    </select>
+
+    <select id="findDescribe_NaturalGas" resultMap="resourceMeterPageResultMap">
+  SELECT dashboard.tz_NaturalGas_id,dashboard.dash_tagname,dashboard.upper_limit,dashboard.lower_limit,dashboard.customname, dashboard.name_display_settings,
+
+   resource.id,resource.num,resource.tagname,resource.max_value,resource.min_value,resource.describe,resource.area,resource.workshop,resource.unit_symbol,resource.type
+
+  FROM tz_data_monitoring_dashboard_NaturalGas dashboard INNER JOIN tz_original_table resource ON dashboard.dash_tagname=resource.tagname
+
+
+    where dashboard.dash_tagname= '${tagname}'
+
+    </select>
+
+    <select id="findDescribe_CompressedAir" resultMap="resourceMeterPageResultMap">
+  SELECT dashboard.tz_CompressedAir_id,dashboard.dash_tagname,dashboard.upper_limit,dashboard.lower_limit,dashboard.customname, dashboard.name_display_settings,
+
+   resource.id,resource.num,resource.tagname,resource.max_value,resource.min_value,resource.describe,resource.area,resource.workshop,resource.unit_symbol,resource.type
+
+  FROM tz_data_monitoring_dashboard_CompressedAir dashboard INNER JOIN tz_original_table resource ON dashboard.dash_tagname=resource.tagname
+
+
+    where dashboard.dash_tagname= '${tagname}'
+
+    </select>
+
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.RoleUserMapper" >
+
+    <select id="selectAll" resultType="RoleUser">
+        select id,userid,roleid from tz_role_user
+    </select>
+
+    <select id="selectUserIdsByKey" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select ru.userid from tz_role_user ru inner join tz_role re on ru.roleid=re.id where re.rolename like '%${keyWord}%'
+    </select>
+
+    <insert id="insertRoleUser" parameterType="com.byd.emg.pojo.RoleUser">
+        insert into tz_role_user (userid,roleid,operatetime) values ( ${userid}, ${roleid}, '${operatetime}')
+    </insert>
+
+    <update id="updateRoleUser" parameterType="com.byd.emg.pojo.RoleUser">
+        update tz_role_user
+        set roleid = ${roleid},
+          operatetime = '${operatetime}'
+        where userid = ${userid}
+    </update>
+
+    <delete id="deleteRoleUserByUserId" parameterType="java.lang.Integer">
+        delete from tz_role_user where userid = #{userId}
+    </delete>
+
+</mapper>

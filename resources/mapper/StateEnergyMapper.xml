@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.StateEnergyMapper" >
+    <delete id="remove">
+        delete ${table} where time = '${time}'
+    </delete>
+
+    <select id="getNav"  resultType="com.byd.emg.pojo.MenuTable">
+       select   id,primary_key,value,label,data_alarm,device_alarm,parent_id,type
+        from menu_table_power
+        <where>
+            <if test="type==0">
+            and  parent_id != '0' and len(value)= 0
+            </if>
+            <if test="type==1">
+                and  parent_id != '0'
+            </if>
+            and  type = 'ZTNH'
+        </where>
+
+        ORDER BY primary_key
+    </select>
+
+    <select id="getSetting"  resultType="map">
+      select a.id equipmentId, value,label ,start_current startCurrent , standby_current standbyCurrent from menu_table_power a
+				LEFT JOIN state_setting b on a.id = b.equipment_id
+			where a.id like concat(#{workshopId},'%')
+			and value != '' and a.type = 'ZTNH'
+			ORDER BY primary_key;
+    </select>
+
+    <select id="getHas"   resultType="String">
+    select equipment_id from state_setting where equipment_id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <update id="batchUpdate" parameterType="java.util.List">
+        <foreach collection="updateList" index="index" item="item" separator=";">
+            update state_setting set
+            start_current=${item.startCurrent}
+            where equipment_id='${item.equipmentId}'
+        </foreach>
+    </update>
+
+
+    <insert id="batchInsertTotal">
+        INSERT INTO state_hour_total(equipment_id,time,start_time,standby_time,stop_time,start_energy,
+        standby_energy,stop_energy)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            ('${item.equipmentId}','${item.time}',${item.startTime},${item.standbyTime},${item.stopTime},
+            ${item.startEnergy},${item.standbyEnergy},${item.stopEnergy})
+        </foreach>
+    </insert>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO state_setting(equipment_id,start_current)
+        VALUES
+        <foreach collection="insertList" item="item" index="index" separator=",">
+            ('${item.equipmentId}',${item.startCurrent})
+        </foreach>
+    </insert>
+    <insert id="statisticsDay">
+INSERT INTO state_day_total(equipment_id,time,start_time,standby_time,stop_time,start_energy,
+        standby_energy,stop_energy)
+select equipment_id, '${time} 00:00:00',sum(start_time),sum(standby_time),sum(stop_time),
+sum(start_energy),sum(standby_energy), sum(stop_energy)
+from state_hour_total where time BETWEEN '${time} 00:00:00' and '${time} 23:59:59'  GROUP BY equipment_id
+    </insert>
+
+    <insert id="statisticsMonth">
+INSERT INTO state_month_total(equipment_id,time,start_time,standby_time,stop_time,start_energy,
+        standby_energy,stop_energy)
+select equipment_id, '${start}',sum(start_time),sum(standby_time),sum(stop_time),
+sum(start_energy),sum(standby_energy), sum(stop_energy)
+from state_day_total where time BETWEEN '${start}' and '${end}'  GROUP BY equipment_id
+    </insert>
+
+    <insert id="statisticsYear">
+
+INSERT INTO state_year_total(equipment_id,time,start_time,standby_time,stop_time,start_energy,
+        standby_energy,stop_energy)
+select equipment_id, '${start}',sum(start_time),sum(standby_time),sum(stop_time),
+sum(start_energy),sum(standby_energy), sum(stop_energy)
+from state_month_total where time BETWEEN '${start}' and '${end}'  GROUP BY equipment_id
+
+    </insert>
+
+    <select id="getValues"  resultType="map">
+        select a.equipment_id,b.label,CONVERT(varchar(100),time, 120) time,start_time,standby_time,stop_time,
+        start_energy,standby_energy,stop_energy from ${table} a
+        left join menu_table_power b on a.equipment_id = b.id and b.type ='ZTNH'
+        where  equipment_id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            '${id}'
+        </foreach>
+        and
+        time BETWEEN '${startTime}' and '${endTime}'
+    </select>
+    <select id="getValueIds" resultType="java.lang.String">
+        select   id from menu_table_power
+        where len(value) > 0 and type like '%_TB' and  parent_id != '0'
+         and id like concat(#{id},'%')
+
+    </select>
+    <select id="getGroupValue" resultType="java.util.Map">
+           select CONVERT(varchar(100),time, 120) time,sum(start_time) start_time,sum(standby_time) standby_time,
+		 sum(stop_time) stop_time,
+        sum(start_energy) start_energy,sum(standby_energy) standby_energy,
+				sum(stop_energy) stop_energy from ${table} a
+        left join menu_table_power b on a.equipment_id = b.id and b.type ='ZTNH'
+        where  equipment_id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            '${id}'
+        </foreach>
+        and
+        time BETWEEN '${startTime}' and '${endTime}'
+        group by time
+    </select>
+
+    <select id="listTime"  resultType="map">
+        select b.value,b.label,CONVERT(varchar(100),time, 120) time,start_time,standby_time,stop_time,
+        start_energy,standby_energy,stop_energy,start_date,standby_date,stop_date from state_day_total a
+        left join menu_table_power b on a.equipment_id = b.id and b.type ='ZTNH'
+        where  b.value in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            '${id}'
+        </foreach>
+        and
+        time BETWEEN '${startTime}' and '${endTime}'
+    </select>
+    <select id="getAllSet" resultType="java.util.Map">
+        select equipment_id,value ,start_current,standby_current from state_setting a
+        left join menu_table_power b on a.equipment_id = b.id and type = 'ZTNH'
+        WHERE start_current is not null and standby_current is not null
+    </select>
+    <select id="listValue" resultType="java.util.Map">
+   select his_date+' '+his_time time, sum(case when tagname='${ep}' then time_value end) as [${ep}],
+ sum(case when tagname='${la}' then time_value end) as [${la}]
+from equip_1min_power where tagname in ('${ep}','${la}') and his_date = '${hisDate}'
+and left(his_time,2) ='${hour}' group by his_date+' '+his_time  order by convert(datetime,his_date+' '+his_time, 20);
+
+    </select>
+    <select id="getSets" resultType="java.util.Map">
+    select b.value,a.* from state_setting a
+    left join menu_table_power b on a.equipment_id = b.id and type = 'ZTNH'
+    where b.value in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            '${id}'
+        </foreach>
+        and start_current is not null and standby_current is not null
+    </select>
+    <select id="getConsume" resultType="java.util.Map">
+        select tagname ,CONVERT(varchar(100),time, 120) time , time_value from ${table}
+        where tagname in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            '${id}'
+        </foreach>
+        and time between '${startTime}' and '${endTime}'
+
+    </select>
+</mapper>

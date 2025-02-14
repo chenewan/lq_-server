@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.TimeJobMapper" >
+
+    <sql id="5Min_Column_List" >
+        min_tagname,min_time_value,min_date,min_time
+    </sql>
+
+
+    <resultMap id="5MinResultMap" type="com.byd.emg.pojo.Sampling_period_5min" >
+        <id column="min_id" property="id" />
+        <result column="minbatchInsertConsumeData_tagname" property="tagname"/>
+        <result column="min_time_value" property="time_value"/>
+        <result column="min_date" property="his_date"/>
+        <result column="min_time" property="his_time"/>
+    </resultMap>
+
+    <!--状态能耗1分钟存储数据的方法     start-->
+    <select id="getAllRealValue" parameterType="java.lang.String" resultType="Sampling_period_5min">
+        select real_tagname as tagname,replace(case real_time_value when '' then '0.0' when null then '0.0' else real_time_value end,',','') as time_value from ${tableName}
+    </select>
+
+    <select id="getBdzRealValue" parameterType="java.util.List" resultType="Sampling_period_5min">
+        select energy_code as tagname,energy_parameter as time_value from BDZ_real_power
+        where energy_code in
+        <foreach collection="bdzInList" index="index" item="item" open="(" separator="," close=")">
+            '${item}'
+        </foreach>
+    </select>
+
+    <insert id="batchInsertEquip" parameterType="java.util.List">
+        <foreach collection="insertList" index="index" item="item" separator=";">
+            insert into equip_1min_power (tagname,time_value,his_date,his_time)
+            values ('${item.tagname}',${item.time_value},'${hisDate}','${hisTime}')
+        </foreach>
+    </insert>
+    <!--状态能耗1分钟存储数据的方法  end-->
+
+    <!--五分钟一次的数据划分-->
+    <insert id="TimeJobBy5min_power" parameterType="com.byd.emg.pojo.Sampling_period_5min" >
+       insert into ${table_name} (tagname,time_value,his_date,his_time,cabinet_number)
+       select real_tagname,real_time_value,'${date}','${time}',cabinet_number  from tz_real_time_power
+       where real_tagname like '%EP%' or real_tagname like '%EQ%' or real_tagname like '%PF%'
+    </insert>
+
+    <insert id="TimeJobOil" >
+       insert into ${table_name} (tagname,time_value,time)
+       select real_tagname,real_time_value,'${time}'  from tz_real_time_oil
+    </insert>
+
+    <select id="queryYield" parameterType="java.lang.String" resultType="Sampling_period_5min">
+        select tagname,actual_num as time_value  from ws_workshop_yield
+    </select>
+
+    <insert id="TimeJobYield" >
+       insert into ${table_name} (tagname,time_value,time)
+       select tagname,actual_num,'${time}'  from ws_workshop_yield
+    </insert>
+
+    <insert id="backupByHourToYield">
+        insert into ${table_name} (day_time,job_code,actual_num,tagname,his_date,his_time)
+        select day_time,job_code,actual_num,tagname,his_date,min(his_time) his_time from ws_5min_workshop_yield group by his_date,left(his_time,2),actual_num,job_code,day_time,tagname
+
+    </insert>
+
+    <select id="queryCommen" parameterType="java.lang.String" resultType="Sampling_period_5min">
+        select real_tagname as tagname,real_time_value as time_value,date as his_date,time as his_time
+        from ${tableName} ${condition}
+    </select>
+
+    <select id="queryOil" parameterType="java.lang.String" resultType="Sampling_period_5min">
+        select real_tagname as tagname,real_time_value as time_value, his_date,his_time
+        from ${tableName} ${condition}
+    </select>
+
+    <insert id="tzJobPower" parameterType="com.byd.emg.pojo.Sampling_period_5min" >
+       insert into ${table_name} (tagname,time_value,time,cabinet_number)
+       select real_tagname,real_time_value,'${time}',cabinet_number from tz_real_time_power
+    </insert>
+
+    <insert id="tzJobWater" parameterType="com.byd.emg.pojo.Sampling_period_5min" >
+       insert into ${table_name} (tagname,time_value,time,cabinet_number)
+       select real_tagname,real_time_value,'${time}',cabinet_number from tz_real_time_water
+    </insert>
+
+    <update id="batchUpdateCommen">
+        <foreach collection="updateList" index="index" item="item" separator=";">
+            update ${tableName} set
+            time_value='${item.time_value}'
+            where tagname='${item.tagname}' and CONVERT(varchar(100), time, 120)  like '${queryTime}%'
+        </foreach>
+    </update>
+
+
+
+    <insert id="tzJobNaturalGas" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ${table_name} (tagname,time_value,time,cabinet_number)
+        select real_tagname,real_time_value,'${time}',cabinet_number  from tz_real_time_NaturalGas
+    </insert>
+
+
+    <insert id="tzJobCompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ${table_name} (tagname,time_value,time,cabinet_number)
+        select real_tagname,real_time_value,'${time}',cabinet_number  from tz_real_time_CompressedAir
+    </insert>
+
+    <insert id="zzJobPower" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ${table_name} (tagname,time_value,time,cabinet_number)
+       select real_tagname,real_time_value,'${time}',cabinet_number from zz_real_time_power
+    </insert>
+
+    <insert id="zzJobCompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ${table_name} (tagname,time_value,time,cabinet_number)
+        select real_tagname,real_time_value,'${time}',cabinet_number  from zz_real_time_CompressedAir
+    </insert>
+
+    <insert id="TimeJobByHour_ws_hour_workshop_yield">
+        insert into ${table_name} (day_time,job_code,actual_num,his_date,his_time,tagname)
+        select day_time,job_code,actual_num,'${date}','${time}',tagname  from ws_workshop_yield
+    </insert>
+
+    <insert id="chJobPower" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ${table_name} (tagname,time_value,time,cabinet_number)
+        select real_tagname,real_time_value,'${time}',cabinet_number from ch_real_time_power
+    </insert>
+
+    <insert id="chJobWater" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ${table_name} (tagname,time_value,time,cabinet_number)
+        select real_tagname,real_time_value,'${time}',cabinet_number from ch_real_time_water
+    </insert>
+
+    <insert id="chJobCompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ${table_name} (tagname,time_value,time,cabinet_number)
+        select real_tagname,real_time_value,'${time}',cabinet_number from ch_real_time_CompressedAir
+    </insert>
+
+    <insert id="cjJobPower" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ${table_name} (tagname,time_value,time,cabinet_number)
+        select real_tagname,real_time_value,'${time}',cabinet_number from cj_real_time_power
+    </insert>
+
+    <insert id="cjJobWater" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ${table_name} (tagname,time_value,time,cabinet_number)
+        select real_tagname,real_time_value,'${time}',cabinet_number from cj_real_time_water
+    </insert>
+
+    <insert id="cjJobNaturalGas" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ${table_name} (tagname,time_value,time,cabinet_number)
+        select real_tagname,real_time_value,'${time}',cabinet_number  from cj_real_time_NaturalGas
+    </insert>
+
+    <insert id="cjJobCompressedAir" parameterType="com.byd.emg.pojo.Sampling_period_5min">
+        insert into ${table_name} (tagname,time_value,time,cabinet_number)
+        select real_tagname,real_time_value,'${time}',cabinet_number from cj_real_time_CompressedAir
+    </insert>
+
+    <insert id="batchInsertTimeJob">
+        insert into ${tableName} (real_tagname,real_time_value,date,time)
+        values
+        <foreach collection="ziCaiTimeJobList" index="index" item="item" separator=",">
+            ('${item.tagname}','${item.time_value}','${item.his_date}','${item.his_time}')
+        </foreach>
+    </insert>
+
+   <!-- 周期耗值新增-->
+    <insert id="batchInsertConsumeData">
+        <foreach collection="consumeDataList" index="index" item="item" separator=";">
+            insert into ${tableName} (tagname,time_value,time,his_date,his_time)
+            values
+            ('${item.tagname}',${item.time_value},'${item.time}','${item.his_date}','${item.his_time}')
+        </foreach>
+    </insert>
+
+    <!--周期耗值修改-->
+    <update id="batchUpdateConsumeData">
+        <foreach collection="consumeDataList" index="index" item="item" separator=";">
+            update ${tableName} set
+            time_value=${item.time_value},
+            his_time='${item.his_time}',
+            his_date='${item.his_date}'
+            where tagname='${item.tagname}' and CONVERT(varchar(100), time, 120) like '${queryTime}%'
+        </foreach>
+    </update>
+
+    <update id="batchUpdateTimeJob">
+        <foreach collection="updateTimeJobList" index="index" item="item" separator=";">
+            update ${tableName} set
+            real_time_value='${item.time_value}',
+            date='${item.his_date}',
+            time='${item.his_time}'
+            where real_tagname='${item.tagname}'
+        </foreach>
+    </update>
+
+    <insert id="batchInsert">
+        <foreach collection="insertList" index="index" item="item" separator=";">
+            insert into ${tableName} (tagname,time_value,time)
+            values
+            ('${item.tagname}','${item.time_value}','${time}')
+        </foreach>
+    </insert>
+
+    <select id="selectBdzRealData" resultType="Sampling_period_5min">
+        select  tagname,energy_parameter as time_value,left(his_time,10) as his_date,right(his_time,8) as his_time
+        from BDZ_real_power ${condition}
+    </select>
+
+    <select id="selectAllBdzData" resultType="Sampling_period_5min">
+        select  tagname,energy_parameter as time_value,left(his_time,10) as his_date,right(his_time,8) as his_time from BDZ_real_power
+    </select>
+
+    <select id="getTimeJobByTableName" parameterType="java.lang.String" resultType="Sampling_period_5min">
+        select real_tagname as tagname,real_time_value as time_value from ${tableName}
+    </select>
+
+    <select id="selectRealTimeTagnameAll" parameterType="java.lang.String" resultType="java.lang.String">
+        select real_tagname from ${dataSourceTableName} ${condition}
+    </select>
+
+    <select id="selectZiCaiData" resultType="Sampling_period_5min">
+        select real_tagname as tagname,
+        replace(real_time_value,',','') as time_value,
+        ${field} from ${dataSourceTableName}
+        ${condition}
+    </select>
+
+    <select id="getSumData" resultType="Sampling_period_5min">
+        select sum(time_value) as time_value,tagname from ${dataSourceTableName}
+        where CONVERT(varchar(100), time, 120) like '${queryHour}%' group by tagname
+    </select>
+
+    <delete id="delRecordByTime" parameterType="java.lang.String">
+        delete from ${tableName} where CONVERT(varchar(100), time, 23) like '${time}%'
+    </delete>
+
+     <!--   <insert id="row_to_column">
+    INSERT INTO tz_data_monitoring(cabinet_number,ua,ub,uc,ia,ib,ic,p,q,pf,ep,eq,time,cabinet_name)
+    (select cabinet_number,
+    MAX(case real_tagname when cabinet_number+'_Ua' then real_time_value else 0 end)ua,
+    MAX(case real_tagname when cabinet_number+'_Ub'then real_time_value else 0 end)ub,
+    MAX(case real_tagname when cabinet_number+'_Uc'then real_time_value else 0 end)uc,
+    MAX(case real_tagname when cabinet_number+'_Ia' then real_time_value else 0 end)ia,
+    MAX(case real_tagname when cabinet_number+'_Ib'then real_time_value else 0 end)ib,
+    MAX(case real_tagname when cabinet_number+'_Ic'then real_time_value else 0 end)ic,
+    MAX(case real_tagname when cabinet_number+'_P' then real_time_value else 0 end)p,
+    MAX(case real_tagname when cabinet_number+'_Q'then real_time_value else 0 end)q,
+    MAX(case real_tagname when cabinet_number+'_PF'then real_time_value else 0 end)pf,
+    MAX(case real_tagname when cabinet_number+'_EP' then real_time_value else 0 end)ep,
+    MAX(case real_tagname when cabinet_number+'_EQ'then real_time_value else 0 end)eq,
+    MAX('${time}')'${time}',
+    MAX(cabinet_name)cabinet_name
+    from  tz_real_time_power
+    GROUP BY
+    cabinet_number)
+
+    </insert>-->
+
+
+</mapper>

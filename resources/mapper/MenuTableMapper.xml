@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.MenuTableMapper" >
+    <sql id="Base_Column_List">
+        id,primary_key,value,label,data_alarm,device_alarm,parent_id,type
+    </sql>
+
+    <!--获取所有的根节点-->
+    <select id="selectAllRootNode" resultType="MenuTable">
+        select
+          <include refid="Base_Column_List" />
+        from ${table_name} where type = '${type}' and parent_id=0 and id!=''
+    </select>
+
+    <select id="selectAllChildrenList" resultType="MenuTable">
+        select
+        <include refid="Base_Column_List" />
+        from ${table_name}
+        <where>
+            and parent_id!=0 and id!=''
+            <if test="type!='' and type!=null">
+               and type = '${type}'
+            </if>
+        </where>
+    </select>
+
+    <select id="getReportRootNode" resultType="MenuTable">
+        select
+        <include refid="Base_Column_List" />
+        from ${table_name} where  parent_id=0 and id!='' and fun_code='${funcode}'
+    </select>
+
+    <select id="getReportTree" resultType="MenuTable">
+        select id,primary_key,label,(value+'_'+report_type+'_'+out_file+'_'+start_time+'_'+end_time+'_'+fun_code) as value,parent_id
+        from ${table_name}
+        where parent_id!=0 and id!='' and fun_code='${funcode}'
+    </select>
+
+    <!--查询前节点下的所有子节点-->
+    <select id="selectByParentId" resultType="java.lang.String">
+        select value  from ${tableName}
+        <where>
+            <if test="true">
+                and parent_id='${id}'
+            </if>
+            <if test="type!='' and type!=null">
+                and type like '%${type}%'
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" parameterType="java.lang.String" resultType="java.lang.String">
+        select value  from ${tableName}
+        <where>
+            <if test="true">
+                and id='${id}'
+            </if>
+            <if test="type!='' and type!=null">
+                and type like '%${type}%'
+            </if>
+        </where>
+    </select>
+
+    <select id="selectByValue" resultType="java.lang.String">
+        select label from menu_table_DFLZM where value='${tags}'
+    </select>
+
+    <!--根据id的集合查询能原编号的集合-->
+    <select id="selectTagnameList" resultType="MenuTable">
+        select
+        <include refid="Base_Column_List" />
+        from ${tableName} where value in
+        <foreach collection="cabinet_numbers" index="index" item="it" separator="," open="(" close=")">
+            '${it}'
+        </foreach>
+    </select>
+
+    <!--历史查询下的中文描述及变量的对应关系-->
+    <select id="cabinetnumberToName" resultType="MenuTable">
+        select value,label from ${tableName}
+        <where>
+            and type in ('TZ','ZZ','CH','CJ','BDZ','OIL','GF')
+            <if test="cabinet_numbers!=null and cabinet_numbers.size>0">
+                and value in
+                <foreach collection="cabinet_numbers" index="index" item="it" separator="," open="(" close=")">
+                    '${it}'
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectMenuByType" resultType="MenuTable">
+        select value,label from ${menuTable} where type='${type}'
+    </select>
+
+    <update id="resetData_alarm">
+        update menu_table_power set data_alarm=''
+    </update>
+
+    <update id="batchUpdateData_alarm">
+        update menu_table_power
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="data_alarm =case" suffix="end,">
+                <foreach collection="valueList" item="it" index="index">
+                    when value='${it}' then '${data_alarm}'
+                </foreach>
+            </trim>
+        </trim>
+        where value in
+        <foreach collection="valueList" index="index" item="it" separator="," open="(" close=")">
+            '${it}'
+        </foreach>
+    </update>
+
+    <update id="batchUpdateByList" parameterType="java.util.List">
+        <foreach collection="menuList" index="index" item="it" separator=";">
+            update menu_table_power set data_alarm='${it.data_alarm}' where value='${it.value}'
+        </foreach>
+    </update>
+
+
+</mapper>

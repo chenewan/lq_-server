@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.BdzRealPowerMapper" >
+    <select id="selectAll" resultType="BdzRealPower">
+        select * from BDZ_real_power order by energy_code asc
+    </select>
+
+    <update id="batchUpdate" parameterType="java.util.List">
+        <foreach collection="bdzRealList" index="index" item="item" separator=";">
+            update BDZ_real_power set
+            energy_parameter='${item.energy_parameter}',
+            his_time='${item.his_time}'
+            where energy_code='${item.energy_code}'
+        </foreach>
+    </update>
+
+</mapper>

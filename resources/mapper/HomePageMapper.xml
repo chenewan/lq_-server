@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.HomePageMapper" >
+
+    <select id="getConsumptionValue" resultType="java.lang.Double">
+        <foreach collection="tableList" index="index" item="item" separator="union all">
+            select sum(time_value) as time_value from ${item.tableName} where CONVERT(varchar(100), time, 120) like '${dataTime}%'
+            and tagname='${item.tagname}'
+        </foreach>
+    </select>
+
+    <!--获取负载曲线数据的方法-->
+    <select id="getLoadCurveData"  resultType="Sampling_period_5min">
+        <foreach collection="dateList" index="index" item="itemOut" separator="union all">
+            <foreach collection="LQPowerList" index="index" item="item" separator="union all">
+                select tagname,time_value,time  from ${tableName} where tagname='${item}'
+                and   CONVERT(varchar(100), time, 23)='${itemOut.endHisDate}' and CONVERT(varchar(100), time, 24) &gt;'${itemOut.startHisTime}' and CONVERT(varchar(100), time, 24) &lt;= '${itemOut.endHisTime}'
+            </foreach>
+        </foreach>
+    </select>
+
+    <!--获取能耗曲线数据-->
+    <select id="getNengHaoCurveData" parameterType="java.util.List" resultType="com.byd.emg.resultentity.HomePageCurveData">
+        <foreach collection="dateList" index="index" item="itemOut" separator="union all">
+          <foreach collection="tableList" index="index" item="item" separator="UNION ALL">
+            select sum(time_value)  as time_value,'${itemOut.endHisDate}' as hisDate,'${itemOut.endHisTime}' as hisTime
+            from ${item.tableName} where tagname='${item.tagname}' and CONVERT(varchar(100), time, 23)='${itemOut.endHisDate}'
+            and CONVERT(varchar(100), time, 24) &gt;'${itemOut.startHisTime}' and CONVERT(varchar(100), time, 24) &lt;= '${itemOut.endHisTime}'
+          </foreach>
+        </foreach>
+    </select>
+
+    <!--获取柱状图数据-->
+    <select id="getBarCureData" parameterType="java.util.List" resultType="com.byd.emg.resultentity.HomePageCurveData">
+        <foreach collection="cycleValueList" index="index" item="itemOut" separator="union all">
+            <foreach collection="tableList" index="index" item="item" separator="UNION ALL">
+                select time_value,'${itemOut.endTime}' as hisDate from ${item.tableName} where tagname='${item.tagname}'
+                and CONVERT(varchar(100), time, 23) like '${itemOut.endTime}%'
+          </foreach>
+        </foreach>
+    </select>
+
+
+    <update id="batchUpdatePageCompare" parameterType="java.util.List">
+        <foreach collection="pageCompareList" index="index" item="item" separator=";">
+            update page_compare set
+            consumption='${item.consumption}',
+            tb='${item.tb}',
+            hb='${item.hb}',
+            dateType='${item.dateType}',
+            updatetime='${updatetime}'
+            where tagname='${item.tagname}'
+        </foreach>
+    </update>
+
+    <delete id="deleteElePowerByWorkShopType" parameterType="java.lang.String">
+        delete from ele_power where workShopType='${workShopType}'
+    </delete>
+
+    <delete id="deleteConsumptionData" parameterType="java.lang.String">
+        delete from ${tableNmae} where workShopType='${workShopType}'
+    </delete>
+
+    <insert id="batchInsertElePower">
+        insert into ele_power (id,xTime,yValue,workShopType,updatetime,number)
+        values
+        <foreach collection="curveDataList" index="index" item="item" separator=",">
+            ('${item.id}','${item.xTime}','${item.yValue}','${workShopType}','${updatetime}',${item.number})
+        </foreach>
+    </insert>
+
+    <insert id="batchInsertConsumptionData">
+        insert into ${tableNmae} (id,xTime,yValue,workShopType,dateType,number,updatetime)
+        values
+        <foreach collection="gasList" index="index" item="item" separator=",">
+            ('${item.id}','${item.xTime}','${item.yValue}','${workShopType}','${item.dateType}',${item.number},'${updatetime}')
+        </foreach>
+    </insert>
+
+    <delete id="deleteEleBar">
+        delete from ele_bar
+    </delete>
+
+    <insert id="batchInsertEleBar" parameterType="java.util.List">
+        insert into ele_bar (id,xTime,yValue,workShopType,media,updatetime,number)
+        values
+        <foreach collection="barList" index="index" item="item" separator=",">
+            ('${item.id}','${item.xTime}','${item.yValue}','${item.workShopType}','${item.media}','${updatetime}',${item.number})
+        </foreach>
+    </insert>
+
+
+</mapper>

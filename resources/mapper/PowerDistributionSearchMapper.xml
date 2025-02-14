@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.PowerDistributionSearchMapper">
+    <sql id="all_Column_List" >
+   power_id,floor, superior_cabinet_number,cabinet_name,cabinet_number, plant,area,ua,ub,uc,ia,ib,ic,p,q,pf,ep,eq
+    </sql>
+
+    <sql id="value_Column_List" >
+      ua,ub,uc,ia,ib,ic,p,q,pf,ep,eq
+    </sql>
+
+    <resultMap id="PowerTableResultMap" type="com.byd.emg.pojo.PowerDistributionSearch" >
+        <id column="power_id" property="power_id" />
+        <result column="floor" property="floor"/>
+        <result column="superior_cabinet_number" property="superior_cabinet_number"/>
+        <result column="cabinet_name" property="cabinet_name"/>
+        <result column="cabinet_number" property="cabinet_number" />
+        <result column="plant" property="plant"/>
+        <result column="area" property="area"/>
+        <result column="ua" property="ua"/>
+        <result column="ub" property="ub"/>
+        <result column="uc" property="uc"/>
+        <result column="ia" property="ia"/>
+        <result column="ib" property="ib"/>
+        <result column="ic" property="ic"/>
+        <result column="p" property="p"/>
+        <result column="q" property="q"/>
+        <result column="pf" property="pf"/>
+        <result column="ep" property="ep"/>
+        <result column="eq" property="eq"/>
+    </resultMap>
+
+
+
+    <select id="power_table"  resultMap="PowerTableResultMap">
+        SELECT
+        <include refid="all_Column_List" />
+        FROM power_distribution_search
+        <where>
+            <if test="area!='' and area!=null">
+                area like '%${area}%'
+            </if>
+
+            <if test="plant!='' and plant!=null">
+                and  plant like '%${plant}%'
+            </if>
+
+            <if test="cabinet_name!='' and cabinet_name!=null">
+                and    cabinet_name like '%${cabinet_name}%'
+            </if>
+        </where>
+
+        ORDER BY power_id
+
+    </select>
+</mapper>

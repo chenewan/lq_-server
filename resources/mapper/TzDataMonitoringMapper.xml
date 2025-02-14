@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.TzDataMonitoringMapper" >
+    <sql id="ResourceMeter_Column_List" >
+        id,num,tagname,max_value,min_value,describe,area,workshop,unit_symbol,type
+    </sql>
+    <sql id="TzDataMonitoringDashboard_Column_List" >
+        tz_id,dash_tagname,upper_limit,lower_limit
+    </sql>
+
+    <sql id="monitoring_power_Column_List">
+        power_id,cabinet_name,
+        cast(convert(decimal(38,1),cast(replace(case ua when '' then '0.0' when null then '0.0' else ua end,',','') as float)) as varchar) as ua,
+        cast(convert(decimal(38,1),cast(replace(case ub when '' then '0.0' when null then '0.0' else ub end,',','') as float)) as varchar) as ub,
+        cast(convert(decimal(38,1),cast(replace(case uc when '' then '0.0' when null then '0.0' else uc end,',','') as float)) as varchar) as uc,
+        cast(convert(decimal(38,1),cast(replace(case ia when '' then '0.0' when null then '0.0' else ia end,',','') as float)) as varchar) as ia,
+        cast(convert(decimal(38,1),cast(replace(case ib when '' then '0.0' when null then '0.0' else ib end,',','') as float)) as varchar) as ib,
+        cast(convert(decimal(38,1),cast(replace(case ic when '' then '0.0' when null then '0.0' else ic end,',','') as float)) as varchar) as ic,
+        cast(convert(decimal(38,1),cast(replace(case p when '' then '0.0' when null then '0.0' else p end,',','') as float)) as varchar) as p,
+        cast(convert(decimal(38,1),cast(replace(case q when '' then '0.0' when null then '0.0' else q end,',','') as float)) as varchar) as q,
+        cast(convert(decimal(38,2),cast(replace(case pf when '' then '0.0' when null then '0.0' else pf end,',','') as float)) as varchar) as pf,
+        cast(convert(decimal(38,1),cast(replace(case when charindex('E',ep)!=0 then (case when SUBSTRING(ep,charindex('E',ep)+2,2)>27 then SUBSTRING(ep,1,charindex('E',ep)+1)+'27' else ep end) else ep end,',','') as float)) as varchar) as ep,
+        cast(convert(decimal(38,1),cast(replace(case when charindex('E',eq)!=0 then (case when SUBSTRING(eq,charindex('E',eq)+2,2)>27 then SUBSTRING(eq,1,charindex('E',eq)+1)+'27' else eq end) else eq end,',','') as float)) as varchar) as eq,cabinet_number,time
+    </sql>
+
+    <sql id="gf_monitoring_power_Column_List">
+        power_id,cabinet_name,
+        cast(convert(decimal(38,1),cast(replace(case TAE when '' then '0.0' when null then '0.0' else TAE end,',','') as float)) as varchar) as TAE,
+        cast(convert(decimal(38,1),cast(replace(case TRE when '' then '0.0' when null then '0.0' else TRE end,',','') as float)) as varchar) as TRE,
+        cast(convert(decimal(38,1),cast(replace(case TAR when '' then '0.0' when null then '0.0' else TAR end,',','') as float)) as varchar) as TAR,
+        cast(convert(decimal(38,1),cast(replace(case TRR when '' then '0.0' when null then '0.0' else TRR end,',','') as float)) as varchar) as TRR,
+        cabinet_number,time
+    </sql>
+
+    <sql id="monitoring_water_Column_List">
+      water_id,cabinet_name,
+      cast(convert(decimal(38,1),cast(replace(case v when '' then '0.0' when null then '0.0' else v end,',','') as float)) as varchar) as v,
+      cast(convert(decimal(38,1),cast(replace(case when charindex('E',eq)!=0 then (case when SUBSTRING(eq,charindex('E',eq)+2,2)>27 then SUBSTRING(eq,1,charindex('E',eq)+1)+'27' else eq end) else eq end,',','') as float)) as varchar) as eq,
+      cast(convert(decimal(38,1),cast(replace(case p when '' then '0.0' when null then '0.0' else p end,',','') as float)) as varchar) as p,
+      cabinet_number,time
+    </sql>
+
+    <sql id="monitoring_CompressdeAir_Column_List">
+      compressedAir_id,cabinet_name,
+      cast(convert(decimal(38,1),cast(replace(case v when '' then '0.0' when null then '0.0' else v end,',','') as float)) as varchar) as v,
+      cast(convert(decimal(38,1),cast(replace(case when charindex('E',eq)!=0 then (case when SUBSTRING(eq,charindex('E',eq)+2,2)>27 then SUBSTRING(eq,1,charindex('E',eq)+1)+'27' else eq end) else eq end,',','') as float)) as varchar) as eq,
+      cast(convert(decimal(38,1),cast(replace(case p when '' then '0.0' when null then '0.0' else p end,',','') as float)) as varchar) as p,
+      cabinet_number,time
+    </sql>
+
+    <sql id="monitoring_NaturalGas_Column_List">
+      NaturalGas_id,cabinet_name,
+      cast(convert(decimal(38,1),cast(replace(case v when '' then '0.0' when null then '0.0' else v end,',','') as float)) as varchar) as v,
+      cast(convert(decimal(38,1),cast(replace(case q when '' then '0.0' when null then '0.0' else q end,',','') as float)) as varchar) as q,
+      cast(convert(decimal(38,1),cast(replace(case when charindex('E',eq)!=0 then (case when SUBSTRING(eq,charindex('E',eq)+2,2)>27 then SUBSTRING(eq,1,charindex('E',eq)+1)+'27' else eq end) else eq end,',','') as float)) as varchar) as eq,
+      cast(convert(decimal(38,1),cast(replace(case when charindex('E',req)!=0 then (case when SUBSTRING(req,charindex('E',req)+2,2)>27 then SUBSTRING(req,1,charindex('E',req)+1)+'27' else req end) else req end,',','') as float)) as varchar) as req,
+      cast(convert(decimal(38,1),cast(replace(case t1 when '' then '0.0' when null then '0.0' else t1 end,',','') as float)) as varchar) as t1,
+      cast(convert(decimal(38,1),cast(replace(case t2 when '' then '0.0' when null then '0.0' else t2 end,',','') as float)) as varchar) as t2,
+      cast(convert(decimal(38,1),cast(replace(case p when '' then '0.0' when null then '0.0' else p end,',','') as float)) as varchar) as p,
+      cabinet_number,time
+    </sql>
+
+    <resultMap id="TzDataMonitoringPageResultMap" type="com.byd.emg.pojo.TzDataMonitoring" >
+        <!-- 一对一关系的主表(real_tz_original_table)  ResourceMeter-->
+        <id column="power_id" property="power_id" />
+        <result column="cabinet_name" property="cabinet_name" />
+        <result column="ua" property="ua" />
+        <result column="ub" property="ub" />
+        <result column="uc" property="uc" />
+        <result column="ia" property="ia" />
+        <result column="ib" property="ib" />
+        <result column="ic" property="ic" />
+        <result column="p" property="p" />
+        <result column="q" property="q" />
+        <result column="pf" property="pf" />
+        <result column="ep" property="ep" />
+        <result column="eq" property="eq" />
+        <result column="cabinet_number" property="cabinet_number" />
+        <result column="time" property="time" />
+    </resultMap>
+
+    <resultMap id="GfDataMonitoringPageResultMap" type="com.byd.emg.pojo.GfDataMonitoring" >
+        <!-- 一对一关系的主表(real_tz_original_table)  ResourceMeter-->
+        <id column="power_id" property="power_id" />
+        <result column="cabinet_name" property="cabinet_name" />
+        <result column="TAE" property="TAE" />
+        <result column="TRE" property="TRE" />
+        <result column="TAR" property="TAR" />
+        <result column="TRR" property="TRR" />
+        <result column="cabinet_number" property="cabinet_number" />
+        <result column="time" property="time" />
+    </resultMap>
+
+
+    <resultMap id="TzDataMonitoringPageResultMap_water" type="com.byd.emg.pojo.TzDataMonitoring_water" >
+        <!-- 一对一关系的主表(real_tz_original_table)  ResourceMeter-->
+        <id column="water_id" property="power_id" />
+        <result column="cabinet_name" property="cabinet_name" />
+        <result column="v" property="v" />
+        <result column="eq" property="eq" />
+        <result column="p" property="p" />
+        <result column="cabinet_number" property="cabinet_number" />
+        <result column="time" property="time" />
+    </resultMap>
+
+    <resultMap id="TzDataMonitoringPageResultMap_CompressdeAir" type="com.byd.emg.pojo.TzDataMonitoring_CompressdeAir" >
+        <!-- 一对一关系的主表(real_tz_original_table)  ResourceMeter-->
+        <id column="compressedAir_id" property="compressedAir_id" />
+        <result column="cabinet_name" property="cabinet_name" />
+        <result column="v" property="v" />
+        <result column="eq" property="eq" />
+        <result column="p" property="p" />
+        <result column="cabinet_number" property="cabinet_number" />
+        <result column="time" property="time" />
+    </resultMap>
+
+
+    <resultMap id="TzDataMonitoringPageResultMap_NaturalGas" type="com.byd.emg.pojo.TzDataMonitoring_NaturalGas" >
+        <!-- 一对一关系的主表(real_tz_original_table)  ResourceMeter-->
+        <id column="NaturalGas_id" property="power_id" />
+        <result column="cabinet_name" property="cabinet_name" />
+        <result column="v" property="v" />
+        <result column="q" property="q" />
+        <result column="eq" property="eq" />
+        <result column="req" property="req" />
+        <result column="t1" property="t1" />
+        <result column="t2" property="t2" />
+        <result column="p" property="p" />
+        <result column="cabinet_number" property="cabinet_number" />
+        <result column="time" property="time" />
+    </resultMap>
+
+    <select id="cabinetnumberToName_water" resultMap="TzDataMonitoringPageResultMap_water">
+        select cabinet_number,cabinet_name from tz_data_monitoring_water
+    </select>
+
+    <select id="cabinetnumberToName_NaturalGas" resultMap="TzDataMonitoringPageResultMap_NaturalGas">
+        select cabinet_number,cabinet_name from tz_data_monitoring_NaturalGas
+    </select>
+
+    <select id="cabinetnumberToName_CompressedAir" resultMap="TzDataMonitoringPageResultMap_CompressdeAir">
+        select cabinet_number,cabinet_name from tz_data_monitoring_CompressedAir
+    </select>
+
+    <!--查询所有的仪表信息-->
+    <select id="AllDataByTzDataMonitoring" resultMap="TzDataMonitoringPageResultMap">
+        SELECT
+          <include refid="monitoring_power_Column_List" />
+        FROM ${table_name}
+        <where>
+            <if test="cabinet_number !=null and cabinet_number.size >0">
+         cabinet_number in
+            <foreach collection="cabinet_number" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            </if>
+        </where >
+        ORDER BY power_id;
+    </select>
+
+    <!--查询所有的仪表信息-->
+    <select id="AllDataByGfDataMonitoring" resultMap="GfDataMonitoringPageResultMap">
+        SELECT
+        <include refid="gf_monitoring_power_Column_List" />
+        FROM ${table_name}
+        <where>
+            <if test="cabinet_number !=null and cabinet_number.size >0">
+                cabinet_number in
+                <foreach collection="cabinet_number" index="index" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where >
+        ORDER BY power_id;
+    </select>
+
+    <!--查询所有的仪表信息-->
+    <select id="AllDataByTzDataMonitoringZz" resultMap="TzDataMonitoringPageResultMap">
+        <foreach collection="parameterList" index="index" item="item" separator="UNION ALL">
+            select
+              <include refid="monitoring_power_Column_List" />
+            from
+              ${item.table_name}
+            where
+            cabinet_number ='${item.ca_number}'
+        </foreach>
+    </select>
+
+    <!--查询所有的电的仪表信息-->
+    <select id="selectAllData" parameterType="java.lang.String" resultMap="TzDataMonitoringPageResultMap">
+        select
+        cast(convert(decimal(38,1),cast(replace(case ua when '' then '0.0' when null then '0.0' else ua end,',','') as float)) as varchar) as ua,
+        cast(convert(decimal(38,1),cast(replace(case ub when '' then '0.0' when null then '0.0' else ub end,',','') as float)) as varchar) as ub,
+        cast(convert(decimal(38,1),cast(replace(case uc when '' then '0.0' when null then '0.0' else uc end,',','') as float)) as varchar) as uc,
+        cast(convert(decimal(38,1),cast(replace(case pf when '' then '0.0' when null then '0.0' else pf end,',','') as float)) as varchar) as pf,
+        cabinet_number from ${table_name}
+    </select>
+
+    <select id="AllDataByTzDataMonitoring_water" resultMap="TzDataMonitoringPageResultMap_water">
+        SELECT
+          <include refid="monitoring_water_Column_List" />
+        FROM ${table_name}
+        <where>
+            <if test="cabinet_number !=null and cabinet_number.size >0">
+                cabinet_number in
+                <foreach collection="cabinet_number" index="index" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where >
+        ORDER BY water_id;
+    </select>
+
+    <select id="AllDataByTzDataMonitoring_CompressedAir" resultMap="TzDataMonitoringPageResultMap_CompressdeAir">
+        SELECT
+          <include refid="monitoring_CompressdeAir_Column_List" />
+        FROM  ${table_name}
+        <where>
+            <if test="cabinet_number !=null and cabinet_number.size >0">
+                cabinet_number in
+                <foreach collection="cabinet_number" index="index" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where >
+        ORDER BY compressedAir_id;
+    </select>
+
+    <select id="AllDataByTzDataMonitoring_NaturalGas" resultMap="TzDataMonitoringPageResultMap_NaturalGas">
+        SELECT
+          <include refid="monitoring_NaturalGas_Column_List" />
+        FROM ${table_name}
+        <where>
+            <if test="cabinet_number !=null and cabinet_number.size >0">
+                cabinet_number in
+                <foreach collection="cabinet_number" index="index" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where >
+        ORDER BY NaturalGas_id;
+    </select>
+
+    <!--电行转列   start-->
+    <!--powerPageResult    start-->
+    <resultMap id="powerPageResult" type="com.byd.emg.pojo.TzDataMonitoring">
+        <result column="cabinet_number" property="cabinet_number" />
+        <collection column="{number=cabinet_number,table=tableName}" property="mediaTagToValueList" ofType="com.byd.emg.resultentity.MediaTagToValue"
+                    select="getPowerValueByNumber" >
+        </collection>
+    </resultMap>
+    <select id="getPowerValueByNumber" resultType="com.byd.emg.resultentity.MediaTagToValue">
+        select real_tagname as realTagname,real_time_value as realValue,(date+' '+time) as dateTime from ${table} where cabinet_number='${number}'
+    </select>
+    <!--powerPageResult    end-->
+
+    <select id="selectAllPower" parameterType="java.lang.String" resultMap="powerPageResult">
+        select distinct cabinet_number,'${realTable}' as tableName from ${realTable}
+    </select>
+
+    <update id="batchUpdatePower">
+        <foreach collection="tzDataList" index="index" item="item" separator=";">
+            update ${upTable} set
+            ua='${item.ua}',
+            ub='${item.ub}',
+            uc='${item.uc}',
+            ia='${item.ia}',
+            ib='${item.ib}',
+            ic='${item.ic}',
+            p='${item.p}',
+            q='${item.q}',
+            pf='${item.pf}',
+            ep='${item.ep}',
+            eq='${item.eqq}',
+            time='${item.time}'
+            where cabinet_number='${item.cabinet_number}'
+        </foreach>
+    </update>
+    <!--电行转列   end-->
+
+    <!--水行转列  start-->
+    <!--waterPageResult    start-->
+    <resultMap id="waterPageResult" type="com.byd.emg.pojo.TzDataMonitoring_water">
+        <result column="cabinet_number" property="cabinet_number" />
+        <collection column="{number=cabinet_number,table=tableName}" property="mediaTagToValueList" ofType="com.byd.emg.resultentity.MediaTagToValue"
+                    select="getWaterValueByNumber" >
+        </collection>
+    </resultMap>
+    <select id="getWaterValueByNumber" resultType="com.byd.emg.resultentity.MediaTagToValue">
+        select real_tagname as realTagname,real_time_value as realValue,(date+' '+time) as dateTime from ${table} where cabinet_number='${number}'
+    </select>
+    <!--waterPageResult    end-->
+
+    <select id="selectAllWater" parameterType="java.lang.String" resultMap="waterPageResult">
+        select distinct cabinet_number,'${realTable}' as tableName from ${realTable}
+    </select>
+
+    <update id="batchUpdateWater">
+        <foreach collection="tzDataList" index="index" item="item" separator=";">
+            update ${upTable} set
+            v='${item.v}',
+            eq='${item.eqq}',
+            p='${item.p}',
+            time='${item.time}'
+            where cabinet_number='${item.cabinet_number}'
+        </foreach>
+    </update>
+
+    <!--水行转列  end-->
+
+    <!--天然气行转列 start-->
+    <!--naturalGasPageResult    start-->
+    <resultMap id="naturalGasPageResult" type="com.byd.emg.pojo.TzDataMonitoring_NaturalGas">
+        <result column="cabinet_number" property="cabinet_number" />
+        <collection column="{number=cabinet_number,table=tableName}" property="mediaTagToValueList" ofType="com.byd.emg.resultentity.MediaTagToValue"
+                    select="getNaturalGasValueByNumber" >
+        </collection>
+    </resultMap>
+    <select id="getNaturalGasValueByNumber" resultType="com.byd.emg.resultentity.MediaTagToValue">
+        select real_tagname as realTagname,real_time_value as realValue,(date+' '+time) as dateTime from ${table} where cabinet_number='${number}'
+    </select>
+    <!--naturalGasPageResult    end-->
+
+    <select id="selectAllNaturalGas" parameterType="java.lang.String" resultMap="naturalGasPageResult">
+        select distinct cabinet_number,'${realTable}' as tableName from ${realTable}
+    </select>
+
+    <update id="batchUpdateNaturalGas">
+        <foreach collection="tzDataList" index="index" item="item" separator=";">
+            update ${upTable} set
+            v='${item.v}',
+            q='${item.q}',
+            eq='${item.eqq}',
+            req='${item.req}',
+            t1='${item.t1}',
+            t2='${item.t2}',
+            p='${item.p}',
+            time='${item.time}'
+            where cabinet_number='${item.cabinet_number}'
+        </foreach>
+    </update>
+    <!--天然气行转列   end-->
+
+    <!--压缩空气行转列  start-->
+    <!--compressdeAirPageResult    start-->
+    <resultMap id="compressdeAirPageResult" type="com.byd.emg.pojo.TzDataMonitoring_CompressdeAir">
+        <result column="cabinet_number" property="cabinet_number" />
+        <collection column="{number=cabinet_number,table=tableName}" property="mediaTagToValueList" ofType="com.byd.emg.resultentity.MediaTagToValue"
+                    select="getCompressdeAirValueByNumber" >
+        </collection>
+    </resultMap>
+    <select id="getCompressdeAirValueByNumber" resultType="com.byd.emg.resultentity.MediaTagToValue">
+        select real_tagname as realTagname,real_time_value as realValue,(date+' '+time) as dateTime from ${table} where cabinet_number='${number}'
+    </select>
+    <!--compressdeAirPageResult    end-->
+
+    <select id="selectAllCompressdeAir" parameterType="java.lang.String" resultMap="compressdeAirPageResult">
+        select distinct cabinet_number,'${realTable}' as tableName from ${realTable}
+    </select>
+
+    <update id="batchUpdateCompressdeAir">
+        <foreach collection="tzDataList" index="index" item="item" separator=";">
+            update ${upTable} set
+            v='${item.v}',
+            eq='${item.eqq}',
+            p='${item.p}',
+            time='${item.time}'
+            where cabinet_number='${item.cabinet_number}'
+        </foreach>
+    </update>
+    <!--压缩空气行转列  end-->
+
+    <!--光伏电行转列   start-->
+    <!--gfPowerPageResult    start-->
+    <resultMap id="gfPowerPageResult" type="com.byd.emg.pojo.GfDataMonitoring">
+        <result column="cabinet_number" property="cabinet_number" />
+        <collection column="{number=cabinet_number,table=tableName}" property="mediaTagToValueList" ofType="com.byd.emg.resultentity.MediaTagToValue"
+                    select="getGfPowerValueByNumber" >
+        </collection>
+    </resultMap>
+    <select id="getGfPowerValueByNumber" resultType="com.byd.emg.resultentity.MediaTagToValue">
+        select real_tagname as realTagname,real_time_value as realValue,(date+' '+time) as dateTime from ${table} where cabinet_number='${number}'
+    </select>
+    <!--gfPowerPageResult    end-->
+
+    <select id="selectAllGfPower" parameterType="java.lang.String" resultMap="gfPowerPageResult">
+        select distinct cabinet_number,'${realTable}' as tableName from ${realTable}
+    </select>
+
+    <update id="batchUpdateGfPower">
+        <foreach collection="gfDataList" index="index" item="item" separator=";">
+            update ${upTable} set
+            TAE='${item.TAE}',
+            TRE='${item.TRE}',
+            TAR='${item.TAR}',
+            TRR='${item.TRR}',
+            time='${item.time}'
+            where cabinet_number='${item.cabinet_number}'
+        </foreach>
+    </update>
+    <!--光伏电行转列   end-->
+
+    <select id="selectByList" resultType="TzDataMonitoring">
+        select power_id,cabinet_name,ua,ub,uc,ia,ib,ic,p,q,pf,ep,eq,cabinet_number,time
+        from ${tableName}
+        where cabinet_number in
+        <foreach collection="menuList" index="index" item="item" open="(" separator="," close=")">
+            '${item.value}'
+        </foreach>
+    </select>
+
+</mapper>

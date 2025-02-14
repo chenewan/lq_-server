@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.byd.emg.mapper.BdzDataMonitoringMapper">
+
+    <!--bdzPageResult    start-->
+    <resultMap id="bdzPageResult" type="com.byd.emg.pojo.BdzDataMonitoring">
+        <result column="cabinet_number" property="cabinet_number" />
+        <collection column="{number=cabinet_number}" property="bdzTagToValueList" ofType="com.byd.emg.resultentity.BdzTagToValue"
+                    select="getBdzValueByNumber" >
+        </collection>
+    </resultMap>
+    <select id="getBdzValueByNumber" resultType="com.byd.emg.resultentity.BdzTagToValue">
+        select tagname,energy_parameter,his_time as time from BDZ_real_power where cabinet_number='${number}'
+    </select>
+    <!--bdzPageResult    end-->
+
+    <sql id="monitoring_power_Column_List">
+        power_id,cabinet_name,ua,ub,uc,ia,ib,ic,p,q,pf,ep,eq,cabinet_number,time
+    </sql>
+
+    <select id="selectAllTimeValue" resultMap="bdzPageResult">
+        select distinct cabinet_number from BDZ_real_power
+    </select>
+
+    <select id="selectAllDataMonitoring" resultType="BdzDataMonitoring">
+        select
+        <include refid="monitoring_power_Column_List" />
+        from BDZ_data_monitoring
+    </select>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        <foreach collection="bdzDataMonitoringList" index="index" item="item" separator=";">
+            insert into BDZ_data_monitoring (cabinet_name,ua,ub,uc,ia,ib,ic,p,q,pf,ep,eq,cabinet_number,time)
+            values
+            ('${item.cabinet_name}','${item.ua}','${item.ub}','${item.uc}','${item.ia}','${item.ib}','${item.ic}',
+            '${item.p}','${item.q}','${item.pf}','${item.ep}','${item.eqq}','${item.cabinet_number}','${item.time}')
+        </foreach>
+    </insert>
+
+    <update id="batchUpdate" parameterType="java.util.List">
+        <foreach collection="updateList" index="index" item="item" separator=";">
+            update BDZ_data_monitoring set
+            cabinet_name='${item.cabinet_name}',
+            ua='${item.ua}',
+            ub='${item.ub}',
+            uc='${item.uc}',
+            ia='${item.ia}',
+            ib='${item.ib}',
+            ic='${item.ic}',
+            p='${item.p}',
+            q='${item.q}',
+            pf='${item.pf}',
+            ep='${item.ep}',
+            eq='${item.eqq}',
+            time='${item.time}'
+            where cabinet_number='${item.cabinet_number}'
+        </foreach>
+    </update>
+
+
+</mapper>
